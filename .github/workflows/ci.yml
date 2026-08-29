@@ -51,6 +51,9 @@ jobs:
       - name: Test database authorization
         run: npm run supabase:db:test
 
+      - name: Verify migration schema drift
+        run: npm run supabase:db:diff
+
       - name: Test
         run: npm run test
 
