@@ -1,8 +1,21 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { getSupabasePublicEnvironment } from "./environment";
 
 describe("getSupabasePublicEnvironment", () => {
+  it("mantem referencias publicas estaticas no modulo do navegador", () => {
+    const clientSource = readFileSync(
+      new URL("./client.ts", import.meta.url),
+      "utf8",
+    );
+
+    expect(clientSource).toContain("process.env.NEXT_PUBLIC_SUPABASE_URL");
+    expect(clientSource).toContain(
+      "process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    );
+    expect(clientSource).not.toContain("getSupabasePublicEnvironment();");
+  });
   it("aceita uma URL HTTPS e uma chave publicavel", () => {
     expect(
       getSupabasePublicEnvironment({

@@ -1,53 +1,46 @@
 "use client";
 
-import { Alert, Input, Label } from "@devora/ui";
+import { Alert, Button, Input, Label } from "@devora/ui";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { createClient } from "../../../../lib/supabase/client";
 import { SubmitButton } from "../../submit-button";
 import { totpCodeSchema } from "../mfa-code";
+import { prepareMfaEnrollment } from "./mfa-enrollment";
 
 type Enrollment = { factorId: string; qrCode: string; secret: string };
 
 export function MfaEnrollForm({ nextPath }: Readonly<{ nextPath: string }>) {
-  const started = useRef(false);
+  const startedAttempt = useRef(-1);
+  const [attempt, setAttempt] = useState(0);
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string>();
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
+    if (startedAttempt.current === attempt) return;
+    startedAttempt.current = attempt;
+    setLoading(true);
+    setMessage(undefined);
+    setEnrollment(null);
     void (async () => {
-      const supabase = createClient();
-      await supabase.rpc("record_audit_event", {
-        event_action: "auth.mfa.enrollment_started",
-        event_outcome: "success",
-        event_metadata: { source: "dashboard" },
-      });
-      const listed = await supabase.auth.mfa.listFactors();
-      if (listed.error)
-        return setMessage("Não foi possível iniciar a configuração.");
-      const abandoned = listed.data.all.filter(
-        (factor) =>
-          factor.factor_type === "totp" && factor.status === "unverified",
-      );
-      for (const factor of abandoned)
-        await supabase.auth.mfa.unenroll({ factorId: factor.id });
-      const result = await supabase.auth.mfa.enroll({
-        factorType: "totp",
-        friendlyName: "Devora OS",
-      });
-      if (result.error)
-        return setMessage("Não foi possível iniciar a configuração.");
-      setEnrollment({
-        factorId: result.data.id,
-        qrCode: result.data.totp.qr_code,
-        secret: result.data.totp.secret,
-      });
+      try {
+        const supabase = createClient();
+        await supabase.rpc("record_audit_event", {
+          event_action: "auth.mfa.enrollment_started",
+          event_outcome: "success",
+          event_metadata: { source: "dashboard" },
+        });
+        setEnrollment(await prepareMfaEnrollment(supabase.auth.mfa));
+      } catch {
+        setMessage("Não foi possível iniciar a configuração de MFA.");
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, []);
+  }, [attempt]);
 
   async function verify(formData: FormData) {
     if (!enrollment || pending) return;
@@ -88,9 +81,19 @@ export function MfaEnrollForm({ nextPath }: Readonly<{ nextPath: string }>) {
 
   if (!enrollment)
     return (
-      <Alert variant={message ? "error" : "warning"}>
-        {message ?? "Preparando o QR Code…"}
-      </Alert>
+      <div className="space-y-4">
+        <Alert variant={message ? "error" : "warning"}>
+          {message ?? "Preparando o QR Code…"}
+        </Alert>
+        {!loading && message ? (
+          <Button
+            type="button"
+            onClick={() => setAttempt((value) => value + 1)}
+          >
+            Tentar novamente
+          </Button>
+        ) : null}
+      </div>
     );
 
   const qrSource = enrollment.qrCode.startsWith("data:")
