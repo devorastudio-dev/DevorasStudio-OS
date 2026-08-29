@@ -1,0 +1,8 @@
+{
+  "name": "@devora/config",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "tsconfig.nextjs.json"
+  ]
+}

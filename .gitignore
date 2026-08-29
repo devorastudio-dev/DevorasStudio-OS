@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Next.js and Turborepo
+.next/
+.turbo/
+out/
+
+# Environment and deployment
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Test and tooling output
+coverage/
+*.tsbuildinfo
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
