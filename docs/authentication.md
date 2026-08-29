@@ -122,4 +122,4 @@ Não existem códigos de recuperação próprios. Uma pessoa autorizada deve ver
 
 Redefinir senha não substitui MFA. Suspender um membro corta o acesso pelos guards e pela RLS; a operação administrativa também deve revogar as sessões do usuário. Remover fator exige AAL2 e, após a remoção, a sessão é atualizada.
 
-Papéis poderão refinar quem é obrigado a usar MFA na B5; até lá, nenhum membro ativo fica isento.
+Papéis e permissões explícitas foram adicionados sem reduzir esta proteção: todos os membros ativos continuam obrigados a usar MFA, e toda consulta administrativa exige AAL2. A diferenciação por papel poderá ser discutida futuramente, mas nenhum membro ativo fica isento nesta fase. Consulte [`access-control.md`](access-control.md).

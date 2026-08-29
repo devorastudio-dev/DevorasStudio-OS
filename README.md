@@ -94,6 +94,7 @@ Variáveis `NEXT_PUBLIC_*` chegam ao navegador. Nunca dê esse prefixo a uma Sec
 | `npm run format:check`                                                                 | confere Prettier                        |
 | `npm run format`                                                                       | aplica Prettier                         |
 | `npm run auth:invite -- --email <email> --organization-id <uuid> --full-name "<nome>"` | convite administrativo                  |
+| `npm run auth:roles -- <comando> --organization-id <uuid> ...`                         | bootstrap e manutenção segura de papéis |
 | `npm run supabase:start` / `supabase:stop` / `supabase:status`                         | controla a stack local                  |
 | `npm run supabase:migration:new -- <nome>`                                             | cria migração                           |
 | `npm run supabase:migration:up`                                                        | aplica migrações pendentes localmente   |
@@ -137,6 +138,17 @@ AAL1 significa que senha ou primeiro fator foi validado. AAL2 significa que o TO
 O último fator obrigatório não pode ser removido pela aplicação. Se o autenticador for perdido, verifique a identidade fora do sistema, use ferramenta administrativa autorizada do Supabase, remova o fator, revogue sessões quando apropriado e exija novo enrollment. Não existem códigos de recuperação próprios.
 
 Suspender um membro exige operação administrativa e revogação das sessões. Consulte [autenticação](docs/authentication.md) para convite, templates e recuperação.
+
+Papéis e permissões são consultados no banco e nunca confiados ao navegador. A matriz inicial possui Administrador, Sócio, Colaborador e Financeiro. O primeiro Administrador deve ser atribuído explicitamente:
+
+```sh
+npm run auth:roles -- bootstrap \
+  --organization-id <organization-uuid> \
+  --user-id <user-uuid> \
+  --confirm BOOTSTRAP
+```
+
+Use `list`, `assign`, `remove` e `effective` conforme o [guia de papéis e permissões](docs/access-control.md). O último Administrador ativo não pode ser removido ou suspenso.
 
 ## Deploy na Vercel
 
@@ -250,6 +262,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 
 - [Supabase local e remoto](docs/supabase.md)
 - [Autenticação, convite e MFA](docs/authentication.md)
+- [Papéis, matriz e bootstrap](docs/access-control.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)
 - [Componentes compartilhados](packages/ui/README.md)
