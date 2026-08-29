@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@devora/ui": "*",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

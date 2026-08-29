@@ -13,14 +13,22 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "turbo run lint",
+    "test": "turbo run test",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/user-event": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
+    "jsdom": "^29.1.1",
     "prettier": "latest",
+    "tailwindcss": "latest",
     "turbo": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "latest"
   },
   "engines": {
     "node": ">=22.0.0"

@@ -2,7 +2,12 @@
   "name": "@devora/config",
   "version": "0.0.0",
   "private": true,
+  "exports": {
+    "./postcss": "./postcss.config.mjs",
+    "./tsconfig.nextjs.json": "./tsconfig.nextjs.json"
+  },
   "files": [
+    "postcss.config.mjs",
     "tsconfig.nextjs.json"
   ]
 }

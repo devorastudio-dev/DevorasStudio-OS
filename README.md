@@ -23,6 +23,7 @@ Execute na raiz do repositório:
 npm run format:check
 npm run lint
 npm run typecheck
+npm run test
 npm run build
 ```
 
@@ -32,4 +33,4 @@ Para corrigir a formatação dos arquivos suportados:
 npm run format
 ```
 
-Ainda não há uma suíte de testes ou um script `test`. A CI deverá passar a executar esse script quando testes reais forem adicionados ao projeto.
+As demonstrações da base visual compartilhada ficam disponíveis em `/ui` nas aplicações `marketing` e `dashboard`. Consulte `packages/ui/README.md` para importar componentes e utilizar os tokens.
