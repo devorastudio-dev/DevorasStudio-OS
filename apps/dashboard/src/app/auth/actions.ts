@@ -18,6 +18,7 @@ import {
   updatePasswordSchema,
 } from "../../lib/auth/validation";
 import { createClient } from "../../lib/supabase/server";
+import { recordAuditEvent } from "../../lib/audit/record";
 
 export interface AuthFormState {
   message?: string;
@@ -38,7 +39,19 @@ export async function loginAction(
   const supabase = await createClient();
   const authenticated = await performPasswordLogin(supabase.auth, parsed.data);
 
-  if (!authenticated) return { message: GENERIC_LOGIN_ERROR };
+  if (!authenticated) {
+    await recordAuditEvent({
+      action: "auth.login.failed",
+      outcome: "failure",
+      metadata: { source: "dashboard" },
+    });
+    return { message: GENERIC_LOGIN_ERROR };
+  }
+  await recordAuditEvent({
+    action: "auth.login.succeeded",
+    outcome: "success",
+    metadata: { source: "dashboard" },
+  });
 
   const nextPath = safeNextPath(formData.get("next")?.toString());
   const authState = await getInternalAuthState();
@@ -55,6 +68,11 @@ export async function loginAction(
 
 export async function logoutAction(): Promise<never> {
   const supabase = await createClient();
+  await recordAuditEvent({
+    action: "auth.logout.succeeded",
+    outcome: "success",
+    metadata: { source: "dashboard" },
+  });
   await performLogout(supabase.auth);
   redirect("/auth/login");
 }
@@ -78,6 +96,11 @@ export async function requestRecoveryAction(
       parsed.data,
       redirectTo,
     );
+    await recordAuditEvent({
+      action: "auth.password_reset.requested",
+      outcome: "success",
+      metadata: { source: "dashboard" },
+    });
     return { message, success: true };
   } catch {
     return { message: GENERIC_RECOVERY_MESSAGE, success: true };
@@ -112,6 +135,14 @@ export async function updatePasswordAction(
     return { message: "Não foi possível atualizar a senha. Tente novamente." };
   }
 
+  await recordAuditEvent({
+    action: "auth.password_reset.completed",
+    outcome: "success",
+    metadata: {
+      mode: formData.get("mode") === "invite" ? "invite" : "recovery",
+    },
+  });
+
   if (formData.get("mode") === "invite") {
     const { error: invitationError } = await supabase.rpc(
       "accept_my_organization_invitation",
@@ -121,6 +152,11 @@ export async function updatePasswordAction(
       await performLogout(supabase.auth);
       redirect("/auth/login?error=invalid-invitation");
     }
+    await recordAuditEvent({
+      action: "auth.invitation.accepted",
+      outcome: "success",
+      metadata: { source: "dashboard" },
+    });
   }
 
   redirect("/");

@@ -2,6 +2,7 @@ import { Alert, Button, Card } from "@devora/ui";
 import { redirect } from "next/navigation";
 
 import { requireDashboardAccess } from "../../../lib/auth/access";
+import { recordAuditEvent } from "../../../lib/audit/record";
 import { hasPermission } from "../../../lib/auth/permissions";
 import { createClient } from "../../../lib/supabase/server";
 import { assignRole, removeRole } from "./actions";
@@ -16,8 +17,14 @@ const roleLabels = {
 
 export default async function MembersAdminPage() {
   const access = await requireDashboardAccess();
-  if (!(await hasPermission("roles.read", access.organization.id)))
+  if (!(await hasPermission("roles.read", access.organization.id))) {
+    await recordAuditEvent({
+      action: "auth.access.denied",
+      outcome: "denied",
+      metadata: { capability: "roles.read" },
+    });
     redirect("/");
+  }
   const canManage = await hasPermission("roles.manage", access.organization.id);
   const supabase = await createClient();
   const [{ data: members, error }, { data: assignments }] = await Promise.all([

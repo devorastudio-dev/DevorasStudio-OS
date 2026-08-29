@@ -121,6 +121,20 @@ export async function runRoleCommand(
       { onConflict: "membership_id,role_id", ignoreDuplicates: true },
     );
     if (error) throw new Error("Nao foi possivel atribuir o papel.");
+    if (input.command === "bootstrap") {
+      const { error: auditError } = await client.rpc(
+        "record_administrative_audit",
+        {
+          event_action: "administrator.bootstrap.completed",
+          event_entity_id: membership.id,
+          event_entity_type: "organization_member",
+          event_metadata: { source: "administrative_script" },
+          target_organization_id: input.organizationId,
+        },
+      );
+      if (auditError)
+        throw new Error("O bootstrap foi aplicado, mas a auditoria falhou.");
+    }
     return "Papel atribuido com seguranca.";
   }
   if (input.command === "remove") {

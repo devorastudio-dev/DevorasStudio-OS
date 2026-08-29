@@ -9,6 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string;
+          actor_user_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string | null;
+          id: string;
+          metadata: Json;
+          organization_id: string | null;
+          outcome: string;
+          request_id: string | null;
+        };
+        Insert: {
+          action: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string | null;
+          outcome: string;
+          request_id?: string | null;
+        };
+        Update: {
+          action?: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string | null;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string | null;
+          outcome?: string;
+          request_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_actor_user_id_fkey";
+            columns: ["actor_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organization_member_roles: {
         Row: {
           created_at: string;
@@ -258,6 +312,27 @@ export type Database = {
       has_role: {
         Args: { target_organization_id?: string; target_role_slug: string };
         Returns: boolean;
+      };
+      record_administrative_audit: {
+        Args: {
+          event_action: string;
+          event_entity_id: string;
+          event_entity_type: string;
+          event_metadata?: Json;
+          target_organization_id: string;
+        };
+        Returns: string;
+      };
+      record_audit_event: {
+        Args: {
+          event_action: string;
+          event_entity_id?: string;
+          event_entity_type?: string;
+          event_metadata?: Json;
+          event_outcome: string;
+          event_request_id?: string;
+        };
+        Returns: string;
       };
       remove_member_role: {
         Args: { target_membership_id: string; target_role_slug: string };

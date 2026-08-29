@@ -116,6 +116,22 @@ async function prepareMembership(
   }
 }
 
+async function auditInvitation(
+  client: SupabaseClient,
+  organizationId: string,
+  userId: string,
+) {
+  const { error } = await client.rpc("record_administrative_audit", {
+    event_action: "auth.invitation.created",
+    event_entity_id: userId,
+    event_entity_type: "user",
+    event_metadata: { source: "administrative_script" },
+    target_organization_id: organizationId,
+  });
+  if (error)
+    throw new Error("O convite foi preparado, mas a auditoria falhou.");
+}
+
 export async function runInvitation(
   rawArguments: readonly string[],
   environment: Readonly<Record<string, string | undefined>> = process.env,
@@ -167,6 +183,7 @@ export async function runInvitation(
     }
 
     await prepareMembership(client, input.organizationId, existingUser.id);
+    await auditInvitation(client, input.organizationId, existingUser.id);
     return "Convite preparado com segurança.";
   }
 
@@ -183,6 +200,7 @@ export async function runInvitation(
   }
 
   await prepareMembership(client, input.organizationId, data.user.id);
+  await auditInvitation(client, input.organizationId, data.user.id);
   return "Convite preparado com segurança.";
 }
 

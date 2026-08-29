@@ -20,7 +20,14 @@ export async function removeMfaFactor(formData: FormData) {
   )
     return;
   const supabase = await createClient();
-  await supabase.auth.mfa.unenroll({ factorId });
+  const { error } = await supabase.auth.mfa.unenroll({ factorId });
+  if (!error)
+    await supabase.rpc("record_audit_event", {
+      event_action: "auth.mfa.factor_removed",
+      event_outcome: "success",
+      event_entity_type: "mfa_factor",
+      event_metadata: { source: "dashboard" },
+    });
   await supabase.auth.refreshSession();
   revalidatePath("/account/security");
 }

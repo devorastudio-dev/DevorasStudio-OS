@@ -23,15 +23,26 @@ export function MfaChallengeForm({
     const parsed = totpCodeSchema.safeParse(formData.get("code"));
     if (!parsed.success) return setMessage("Informe o código de seis dígitos.");
     setPending(true);
-    const { error } = await createClient().auth.mfa.challengeAndVerify({
+    const supabase = createClient();
+    const { error } = await supabase.auth.mfa.challengeAndVerify({
       factorId,
       code: parsed.data,
     });
     if (error) {
+      await supabase.rpc("record_audit_event", {
+        event_action: "auth.mfa.challenge.failed",
+        event_outcome: "failure",
+        event_metadata: { source: "dashboard" },
+      });
       setPending(false);
       setMessage("Código inválido ou expirado. Tente novamente.");
       return;
     }
+    await supabase.rpc("record_audit_event", {
+      event_action: "auth.mfa.challenge.succeeded",
+      event_outcome: "success",
+      event_metadata: { source: "dashboard" },
+    });
     window.location.assign(nextPath);
   }
   return (

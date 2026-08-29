@@ -21,6 +21,11 @@ export function MfaEnrollForm({ nextPath }: Readonly<{ nextPath: string }>) {
     started.current = true;
     void (async () => {
       const supabase = createClient();
+      await supabase.rpc("record_audit_event", {
+        event_action: "auth.mfa.enrollment_started",
+        event_outcome: "success",
+        event_metadata: { source: "dashboard" },
+      });
       const listed = await supabase.auth.mfa.listFactors();
       if (listed.error)
         return setMessage("Não foi possível iniciar a configuração.");
@@ -50,17 +55,34 @@ export function MfaEnrollForm({ nextPath }: Readonly<{ nextPath: string }>) {
     if (!parsed.success) return setMessage("Informe o código de seis dígitos.");
     setPending(true);
     setMessage(undefined);
-    const { error } = await createClient().auth.mfa.challengeAndVerify({
+    const supabase = createClient();
+    const { error } = await supabase.auth.mfa.challengeAndVerify({
       factorId: enrollment.factorId,
       code: parsed.data,
     });
     if (error) {
+      await supabase.rpc("record_audit_event", {
+        event_action: "auth.mfa.challenge.failed",
+        event_outcome: "failure",
+        event_metadata: { source: "dashboard" },
+      });
       setPending(false);
       setMessage(
         "Não foi possível confirmar o código. Gere um novo código e tente novamente.",
       );
       return;
     }
+    await supabase.rpc("record_audit_event", {
+      event_action: "auth.mfa.enrollment_completed",
+      event_outcome: "success",
+      event_metadata: { source: "dashboard" },
+    });
+    await supabase.rpc("record_audit_event", {
+      event_action: "auth.mfa.factor_added",
+      event_outcome: "success",
+      event_entity_type: "mfa_factor",
+      event_metadata: { source: "dashboard" },
+    });
     window.location.assign(nextPath);
   }
 
