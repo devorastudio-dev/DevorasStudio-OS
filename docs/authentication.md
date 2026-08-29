@@ -108,7 +108,7 @@ Confirme os dois identificadores antes da transação. Nunca ofereça essa opera
 
 ## MFA TOTP obrigatório
 
-Enquanto papéis e permissões não existem, todo membro `active` precisa de TOTP e de uma sessão AAL2. O servidor encaminha uma pessoa ativa sem fator verificado para `/auth/mfa/enroll`, e uma pessoa com fator verificado em AAL1 para `/auth/mfa/challenge`. Somente AAL2 libera o dashboard e `/account/security`.
+Todo membro `active` precisa de TOTP e de uma sessão AAL2, independentemente do papel atual. O servidor encaminha uma pessoa ativa sem fator verificado para `/auth/mfa/enroll`, e uma pessoa com fator verificado em AAL1 para `/auth/mfa/challenge`. Somente AAL2 libera o dashboard e `/account/security`.
 
 O segredo TOTP existe apenas durante o enrollment fornecido pelo Supabase, não é persistido pelo Devora OS e não deve aparecer em logs, analytics ou suporte. A área de segurança permite adicionar outro fator; o último fator obrigatório não pode ser removido pela aplicação. Fatores não verificados abandonados são removidos antes de iniciar novo enrollment.
 

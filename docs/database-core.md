@@ -19,7 +19,7 @@ As três tabelas têm RLS habilitada e não possuem políticas permissivas para 
 
 A função `private.is_active_organization_member` é `security definer` para consultar vínculos sem recursão de RLS. Ela fica fora dos schemas expostos pela Data API, usa `search_path` vazio, nomes qualificados e só pode ser executada pelo papel `authenticated`. Essa função não concede escrita nem aceita um usuário informado pelo navegador.
 
-A B5 substituirá essa regra binária de membro ativo por papéis e permissões explícitas. Até lá, não existe distinção administrativa no schema.
+Papéis e permissões explícitas complementam essa regra: vínculo ativo e AAL2 continuam obrigatórios, e cada operação exige sua capacidade no banco.
 
 ## Bootstrap seguro
 

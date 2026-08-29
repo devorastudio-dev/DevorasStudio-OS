@@ -263,6 +263,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 - [Supabase local e remoto](docs/supabase.md)
 - [Autenticação, convite e MFA](docs/authentication.md)
 - [Papéis, matriz e bootstrap](docs/access-control.md)
+- [Auditoria básica e retenção](docs/audit.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)
 - [Componentes compartilhados](packages/ui/README.md)

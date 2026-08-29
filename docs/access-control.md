@@ -103,6 +103,6 @@ Se a organização ficar sem papel por uma migração incompleta, use o bootstra
 
 - não há CRUD de papéis personalizados;
 - não há convite pela interface;
-- não há auditoria persistente das mudanças;
+- a auditoria básica registra mudanças críticas conforme [`audit.md`](audit.md);
 - permissões dos módulos futuros ainda não são consumidas por módulos inexistentes;
 - regras de acesso por registro serão implementadas com CRM, clientes e projetos.
