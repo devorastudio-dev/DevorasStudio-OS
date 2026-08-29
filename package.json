@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "auth:invite": "npm run auth:invite --workspace @devora/dashboard --",
+    "auth:roles": "npm run auth:roles --workspace @devora/dashboard --",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "format": "prettier --write .",

@@ -17,6 +17,12 @@ values (
   'active'
 );
 
+insert into public.organization_member_roles (organization_id, membership_id, role_id)
+select membership.organization_id, membership.id, role.id
+from public.organization_members membership
+join public.roles role on role.organization_id = membership.organization_id and role.slug = 'colaborador'
+where membership.user_id = '00000000-0000-4000-8000-000000000402';
+
 set local role anon;
 
 select throws_ok(

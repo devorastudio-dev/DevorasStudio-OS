@@ -2,12 +2,17 @@ import { Button, Card } from "@devora/ui";
 import Link from "next/link";
 
 import { requireDashboardAccess } from "../lib/auth/access";
+import { hasPermission } from "../lib/auth/permissions";
 import { logoutAction } from "./auth/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardHome() {
   const access = await requireDashboardAccess();
+  const canReadRoles = await hasPermission(
+    "roles.read",
+    access.organization.id,
+  );
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
@@ -33,6 +38,11 @@ export default async function DashboardHome() {
         <Link className="text-sm underline" href="/account/security">
           Segurança da conta
         </Link>
+        {canReadRoles ? (
+          <Link className="text-sm underline" href="/admin/members">
+            Membros e papéis
+          </Link>
+        ) : null}
       </Card>
     </main>
   );

@@ -9,6 +9,49 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      organization_member_roles: {
+        Row: {
+          created_at: string;
+          membership_id: string;
+          organization_id: string;
+          role_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          membership_id: string;
+          organization_id: string;
+          role_id: string;
+        };
+        Update: {
+          created_at?: string;
+          membership_id?: string;
+          organization_id?: string;
+          role_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_member_roles_membership_fk";
+            columns: ["membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "organization_member_roles_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organization_member_roles_role_fk";
+            columns: ["role_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "roles";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       organization_members: {
         Row: {
           created_at: string;
@@ -75,6 +118,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      permissions: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          key: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          key: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          key?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -99,15 +163,105 @@ export type Database = {
         };
         Relationships: [];
       };
+      role_permissions: {
+        Row: {
+          created_at: string;
+          permission_id: string;
+          role_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          permission_id: string;
+          role_id: string;
+        };
+        Update: {
+          created_at?: string;
+          permission_id?: string;
+          role_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey";
+            columns: ["permission_id"];
+            isOneToOne: false;
+            referencedRelation: "permissions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey";
+            columns: ["role_id"];
+            isOneToOne: false;
+            referencedRelation: "roles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      roles: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          is_system: boolean;
+          name: string;
+          organization_id: string;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          is_system?: boolean;
+          name: string;
+          organization_id: string;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          is_system?: boolean;
+          name?: string;
+          organization_id?: string;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "roles_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
       accept_my_organization_invitation: { Args: never; Returns: string };
+      assign_member_role: {
+        Args: { target_membership_id: string; target_role_slug: string };
+        Returns: undefined;
+      };
       get_my_membership_statuses: {
         Args: never;
         Returns: Database["public"]["Enums"]["organization_member_status"][];
+      };
+      has_permission: {
+        Args: { organization_id?: string; permission_key: string };
+        Returns: boolean;
+      };
+      has_role: {
+        Args: { target_organization_id?: string; target_role_slug: string };
+        Returns: boolean;
+      };
+      remove_member_role: {
+        Args: { target_membership_id: string; target_role_slug: string };
+        Returns: undefined;
       };
     };
     Enums: {

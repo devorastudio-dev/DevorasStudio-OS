@@ -101,6 +101,20 @@ export async function getInternalAuthState(): Promise<InternalAuthState> {
     };
   }
 
+  const { data: canReadOrganization } = await supabase.rpc("has_permission", {
+    permission_key: "organization.read",
+  });
+  if (!canReadOrganization) {
+    return {
+      access: null,
+      currentLevel,
+      destination: "access-pending",
+      factors,
+      membership,
+      user,
+    };
+  }
+
   const { data: memberships } = await supabase
     .from("organization_members")
     .select("organization_id")

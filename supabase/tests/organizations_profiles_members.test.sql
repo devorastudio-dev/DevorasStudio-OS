@@ -63,6 +63,12 @@ values
     'active'
   );
 
+insert into public.organization_member_roles (organization_id, membership_id, role_id)
+select membership.organization_id, membership.id, role.id
+from public.organization_members membership
+join public.roles role on role.organization_id = membership.organization_id and role.slug = 'colaborador'
+where membership.status = 'active';
+
 update public.profiles
 set updated_at = '2000-01-01 00:00:00+00'
 where id = '00000000-0000-0000-0000-000000000101';
