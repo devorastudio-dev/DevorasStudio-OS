@@ -34,3 +34,7 @@ npm run format
 ```
 
 As demonstrações da base visual compartilhada ficam disponíveis em `/ui` nas aplicações `marketing` e `dashboard`. Consulte `packages/ui/README.md` para importar componentes e utilizar os tokens.
+
+## Supabase
+
+A infraestrutura local, as migrações e os clientes do dashboard estão descritos em [`docs/supabase.md`](docs/supabase.md). O ambiente local exige Docker e usa a CLI instalada no próprio projeto.
