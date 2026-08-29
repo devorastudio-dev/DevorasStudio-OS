@@ -1,3 +1,11 @@
 # Testes do banco
 
-Os testes pgTAP das entidades serao adicionados junto das respectivas migracoes. Esta tarefa nao cria tabelas nem testes artificiais. Quando existirem testes SQL, execute `npm run supabase:db:test` com o ambiente local ativo.
+Os testes pgTAP validam schema, integridade e políticas RLS com usuários fictícios. Cada arquivo executa em uma transação revertida ao final.
+
+Com o Supabase local ativo, execute:
+
+```sh
+npm run supabase:db:test
+```
+
+Os testes devem falhar se uma política permitir leitura ou escrita entre organizações.

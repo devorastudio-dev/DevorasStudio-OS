@@ -1,6 +1,8 @@
 # Supabase: ambiente e migrações
 
-Esta configuração cobre somente a infraestrutura da Fase 0. Ainda não existem tabelas de negócio, autenticação ou políticas RLS.
+Esta configuração cobre a infraestrutura da Fase 0 e o núcleo de organizações e perfis. Ainda não existem fluxos de autenticação nem outras entidades de negócio.
+
+O núcleo de organizações, perfis, membros e suas políticas RLS está documentado em [`database-core.md`](database-core.md).
 
 ## Requisitos e instalação
 
@@ -33,7 +35,7 @@ Crie `apps/dashboard/.env.local` a partir de `apps/dashboard/.env.example`. Obte
 
 O diretório `supabase/migrations` é a fonte da verdade do schema. Crie uma migração para cada alteração, revise o SQL e valide com reset, lint, testes e diff. Evite editar o schema remoto manualmente. Não há migração ou seed inicial porque nenhuma extensão, função ou entidade é necessária nesta etapa.
 
-O arquivo `database.types.ts` atual é um marcador mínimo de schema vazio. Substitua-o pela saída da CLI, nunca por tipos mantidos manualmente, assim que a stack local estiver disponível.
+O arquivo `database.types.ts` é gerado pela CLI a partir do schema atualmente vazio. Gere-o novamente após cada alteração de schema; nunca mantenha tipos de tabelas manualmente.
 
 ## Variáveis e segredos
 
