@@ -104,7 +104,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      accept_my_organization_invitation: { Args: never; Returns: string };
     };
     Enums: {
       organization_member_status: "invited" | "active" | "suspended";

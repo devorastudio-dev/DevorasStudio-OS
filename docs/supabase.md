@@ -4,6 +4,8 @@ Esta configuração cobre a infraestrutura da Fase 0 e o núcleo de organizaçõ
 
 O núcleo de organizações, perfis, membros e suas políticas RLS está documentado em [`database-core.md`](database-core.md).
 
+Convites, login, recuperação e proteção do dashboard estão documentados em [`authentication.md`](authentication.md).
+
 ## Requisitos e instalação
 
 - Node.js 24 LTS e npm 11;

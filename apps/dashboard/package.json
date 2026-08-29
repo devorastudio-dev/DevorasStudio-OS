@@ -2,7 +2,9 @@
   "name": "@devora/dashboard",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "auth:invite": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/invite-user.ts",
     "build": "next build",
     "dev": "next dev --port 3001",
     "lint": "eslint . --max-warnings=0",
@@ -16,7 +18,8 @@
     "@supabase/supabase-js": "2.112.4",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "zod": "4.5.2"
   },
   "devDependencies": {
     "@devora/config": "*",

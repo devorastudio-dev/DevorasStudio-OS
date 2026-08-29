@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "auth:invite": "npm run auth:invite --workspace @devora/dashboard --",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "format": "prettier --write .",

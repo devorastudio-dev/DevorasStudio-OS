@@ -9,7 +9,13 @@ import {
   Textarea,
 } from "@devora/ui";
 
-export default function UiShowcase() {
+import { requireDashboardAccess } from "../../lib/auth/access";
+
+export const dynamic = "force-dynamic";
+
+export default async function UiShowcase() {
+  await requireDashboardAccess();
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-background px-4 py-10 text-text sm:px-6 lg:px-8">
       <div className="mx-auto flex min-w-0 max-w-5xl flex-col gap-8">
