@@ -106,4 +106,20 @@ Confirme os dois identificadores antes da transação. Nunca ofereça essa opera
 - reset, pgTAP, lint, typecheck, testes e build aprovados;
 - migração revisada com dry-run antes do push remoto.
 
-MFA, papéis, permissões e uma tela administrativa serão tratados nas tarefas seguintes.
+## MFA TOTP obrigatório
+
+Enquanto papéis e permissões não existem, todo membro `active` precisa de TOTP e de uma sessão AAL2. O servidor encaminha uma pessoa ativa sem fator verificado para `/auth/mfa/enroll`, e uma pessoa com fator verificado em AAL1 para `/auth/mfa/challenge`. Somente AAL2 libera o dashboard e `/account/security`.
+
+O segredo TOTP existe apenas durante o enrollment fornecido pelo Supabase, não é persistido pelo Devora OS e não deve aparecer em logs, analytics ou suporte. A área de segurança permite adicionar outro fator; o último fator obrigatório não pode ser removido pela aplicação. Fatores não verificados abandonados são removidos antes de iniciar novo enrollment.
+
+A RLS de organizações e membros também exige o claim `aal = aal2`. Uma função mínima retorna somente os estados dos vínculos da identidade atual para que o servidor possa encaminhar AAL1 sem revelar organizações ou colegas.
+
+No projeto remoto, habilite enrollment e verification de TOTP nas configurações de MFA do Supabase. Não habilite Phone ou WebAuthn nesta etapa. Confirme também que as URLs de redirecionamento existentes continuam exatas para produção e desenvolvimento.
+
+### Perda do autenticador
+
+Não existem códigos de recuperação próprios. Uma pessoa autorizada deve verificar a identidade fora do sistema, usar exclusivamente as ferramentas administrativas do Supabase para remover o fator perdido, revogar sessões quando apropriado e exigir novo enrollment no próximo acesso. Registre essa intervenção quando a auditoria for implementada. Nunca exponha uma rota pública ou a chave Secret para esse procedimento.
+
+Redefinir senha não substitui MFA. Suspender um membro corta o acesso pelos guards e pela RLS; a operação administrativa também deve revogar as sessões do usuário. Remover fator exige AAL2 e, após a remoção, a sessão é atualizada.
+
+Papéis poderão refinar quem é obrigado a usar MFA na B5; até lá, nenhum membro ativo fica isento.

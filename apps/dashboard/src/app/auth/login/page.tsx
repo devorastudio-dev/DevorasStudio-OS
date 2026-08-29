@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 
-import { getDashboardAccess } from "../../../lib/auth/access";
+import {
+  destinationPath,
+  getInternalAuthState,
+} from "../../../lib/auth/access";
 import { safeNextPath } from "../../../lib/auth/validation";
 import { AuthFormShell } from "../auth-form-shell";
 import { LoginForm } from "./login-form";
@@ -10,13 +13,12 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage({
   searchParams,
 }: Readonly<{ searchParams: Promise<{ error?: string; next?: string }> }>) {
-  const [{ error, next }, { access, user }] = await Promise.all([
+  const [{ error, next }, authState] = await Promise.all([
     searchParams,
-    getDashboardAccess(),
+    getInternalAuthState(),
   ]);
 
-  if (access) redirect("/");
-  if (user) redirect("/auth/access-pending");
+  if (authState.user) redirect(destinationPath(authState.destination));
 
   return (
     <AuthFormShell

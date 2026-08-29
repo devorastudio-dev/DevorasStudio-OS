@@ -105,6 +105,10 @@ export type Database = {
     };
     Functions: {
       accept_my_organization_invitation: { Args: never; Returns: string };
+      get_my_membership_statuses: {
+        Args: never;
+        Returns: Database["public"]["Enums"]["organization_member_status"][];
+      };
     };
     Enums: {
       organization_member_status: "invited" | "active" | "suspended";

@@ -9,6 +9,7 @@ import {
   performPasswordLogin,
   requestPasswordRecovery,
 } from "../../lib/auth/operations";
+import { destinationPath, getInternalAuthState } from "../../lib/auth/access";
 import {
   emailSchema,
   getApplicationUrl,
@@ -39,7 +40,17 @@ export async function loginAction(
 
   if (!authenticated) return { message: GENERIC_LOGIN_ERROR };
 
-  redirect(safeNextPath(formData.get("next")?.toString()));
+  const nextPath = safeNextPath(formData.get("next")?.toString());
+  const authState = await getInternalAuthState();
+  if (
+    authState.destination === "mfa-enroll" ||
+    authState.destination === "mfa-challenge"
+  ) {
+    redirect(
+      `${destinationPath(authState.destination)}?next=${encodeURIComponent(nextPath)}`,
+    );
+  }
+  redirect(destinationPath(authState.destination));
 }
 
 export async function logoutAction(): Promise<never> {

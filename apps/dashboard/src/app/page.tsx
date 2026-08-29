@@ -1,4 +1,5 @@
 import { Button, Card } from "@devora/ui";
+import Link from "next/link";
 
 import { requireDashboardAccess } from "../lib/auth/access";
 import { logoutAction } from "./auth/actions";
@@ -29,6 +30,9 @@ export default async function DashboardHome() {
             Sair
           </Button>
         </form>
+        <Link className="text-sm underline" href="/account/security">
+          Segurança da conta
+        </Link>
       </Card>
     </main>
   );

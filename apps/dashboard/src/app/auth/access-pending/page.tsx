@@ -1,17 +1,21 @@
 import { Alert, Button } from "@devora/ui";
 import { redirect } from "next/navigation";
 
-import { getDashboardAccess } from "../../../lib/auth/access";
+import {
+  destinationPath,
+  getInternalAuthState,
+} from "../../../lib/auth/access";
 import { logoutAction } from "../actions";
 import { AuthFormShell } from "../auth-form-shell";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccessPendingPage() {
-  const { access, user } = await getDashboardAccess();
+  const authState = await getInternalAuthState();
 
-  if (!user) redirect("/auth/login");
-  if (access) redirect("/");
+  if (authState.destination !== "access-pending") {
+    redirect(destinationPath(authState.destination));
+  }
 
   return (
     <AuthFormShell

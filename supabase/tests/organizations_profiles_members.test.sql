@@ -149,6 +149,8 @@ select throws_ok(
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config('request.jwt.claim.aal', 'aal2', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000101","role":"authenticated","aal":"aal2"}', true);
 
 select results_eq(
   $$select id from public.profiles$$,
@@ -170,6 +172,8 @@ select is(
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', true);
+select set_config('request.jwt.claim.aal', 'aal2', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-000000000101","role":"authenticated","aal":"aal2"}', true);
 
 select throws_ok(
   $$update public.profiles set id = '00000000-0000-0000-0000-000000000109' where id = '00000000-0000-0000-0000-000000000101'$$,
@@ -247,6 +251,7 @@ select is(
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000103', true);
+select set_config('request.jwt.claim.aal', 'aal2', true);
 
 select is(
   (select count(*)::integer from public.organizations),
