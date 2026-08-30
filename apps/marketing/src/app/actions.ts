@@ -1,6 +1,5 @@
 "use server";
 
-import { isRpcLeadOutcome } from "../lib/leads/outcomes";
 import type { LeadOutcome } from "../lib/leads/outcomes";
 import { evaluateSubmissionTiming, leadSchema } from "../lib/leads/validation";
 import { createPublicSupabaseClient } from "../lib/supabase/server";
@@ -58,6 +57,8 @@ export async function submitLead(
     return failureState;
   }
 
+console.log("[submitLead] email recebido:", JSON.stringify(value(data, "email")));
+
   const parsed = leadSchema.safeParse({
     fullName: value(data, "fullName"),
     email: value(data, "email"),
@@ -74,18 +75,26 @@ export async function submitLead(
     utmTerm: value(data, "utmTerm"),
   });
 
-  if (!parsed.success) {
-    logOutcome(requestId, "validation_failed", actionStartedAt, "invalid_form");
-    return {
-      status: "error",
-      message: "Revise os campos indicados e tente novamente.",
-    };
-  }
+if (!parsed.success) {
+  console.error("[submitLead] validation error", parsed.error.issues);
+
+  logOutcome(requestId, "validation_failed", actionStartedAt, "invalid_form");
+
+  return {
+    status: "error",
+    message: "Revise os campos indicados e tente novamente.",
+  };
+}
 
   try {
     const input = parsed.data;
-    const { data: outcome, error } = await createPublicSupabaseClient().rpc(
-      "submit_public_lead",
+    console.info("[submitLead] creating Supabase client");
+
+    const supabase = createPublicSupabaseClient();
+
+    console.info("[submitLead] Supabase client created");
+
+    const { data: outcome, error } = await supabase.rpc(      "submit_public_lead",
       {
         full_name: input.fullName,
         email: input.email,
@@ -110,21 +119,33 @@ export async function submitLead(
       );
       return failureState;
     }
-    if (!isRpcLeadOutcome(outcome)) {
-      logOutcome(requestId, "rpc_failed", actionStartedAt, "invalid_outcome");
-      return failureState;
+
+    console.log("[submitLead] RPC outcome bruto:", outcome);
+
+    if (outcome === true) {
+      logOutcome(requestId, "persisted", actionStartedAt);
+      return successState;
     }
 
-    logOutcome(requestId, outcome, actionStartedAt);
-    if (outcome === "persisted" || outcome === "duplicate") return successState;
+    logOutcome(requestId, "rpc_failed", actionStartedAt, "false_outcome");
     return failureState;
-  } catch (error) {
-    logOutcome(
-      requestId,
-      "unexpected_failure",
-      actionStartedAt,
-      technicalCode(error),
-    );
-    return failureState;
-  }
+
+    } catch (error) {
+      console.error("[submitLead] Unexpected failure", {
+        requestId,
+        error,
+        name: error instanceof Error ? error.name : undefined,
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
+      logOutcome(
+        requestId,
+        "unexpected_failure",
+        actionStartedAt,
+        technicalCode(error),
+      );
+
+      return failureState;
+    }
 }
