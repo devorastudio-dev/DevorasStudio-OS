@@ -2,15 +2,7 @@
 
 import { createPublicSupabaseClient } from "../lib/supabase/server";
 import { isAutomatedSubmission, leadSchema } from "../lib/leads/validation";
-
-export type LeadActionState = {
-  status: "idle" | "success" | "error";
-  message: string;
-};
-export const initialLeadState: LeadActionState = {
-  status: "idle",
-  message: "",
-};
+import type { LeadActionState } from "./lead-action-state";
 
 const value = (data: FormData, key: string) => String(data.get(key) ?? "");
 

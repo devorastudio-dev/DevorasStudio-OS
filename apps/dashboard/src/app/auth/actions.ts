@@ -19,11 +19,7 @@ import {
 } from "../../lib/auth/validation";
 import { createClient } from "../../lib/supabase/server";
 import { recordAuditEvent } from "../../lib/audit/record";
-
-export interface AuthFormState {
-  message?: string;
-  success?: boolean;
-}
+import type { AuthFormState } from "./auth-action-state";
 
 export async function loginAction(
   _previousState: AuthFormState,

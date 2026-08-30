@@ -5,7 +5,9 @@ vi.mock("../lib/supabase/server", () => ({
   createPublicSupabaseClient: () => ({ rpc }),
 }));
 
-import { initialLeadState, submitLead } from "./actions";
+import * as actionModule from "./actions";
+import { submitLead } from "./actions";
+import { initialLeadState } from "./lead-action-state";
 
 function validForm() {
   const data = new FormData();
@@ -54,5 +56,18 @@ describe("submitLead", () => {
     const state = await submitLead(initialLeadState, data);
     expect(state.status).toBe("success");
     expect(rpc).not.toHaveBeenCalled();
+  });
+});
+
+describe("módulo da Server Action", () => {
+  it("exporta somente funções assíncronas", () => {
+    expect(Object.keys(actionModule)).toEqual(["submitLead"]);
+    expect(
+      Object.values(actionModule).every(
+        (exported) =>
+          typeof exported === "function" &&
+          exported.constructor.name === "AsyncFunction",
+      ),
+    ).toBe(true);
   });
 });

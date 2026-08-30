@@ -2,9 +2,21 @@
 
 import { Button, Input, Label, Textarea } from "@devora/ui";
 import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { initialLeadState, submitLead } from "./actions";
+import { submitLead } from "./actions";
+import { initialLeadState } from "./lead-action-state";
+import type { LeadActionState } from "./lead-action-state";
+
+const EMPTY_FIELDS = {
+  fullName: "",
+  email: "",
+  phone: "",
+  company: "",
+  serviceInterest: "",
+  message: "",
+  consent: false,
+};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -16,11 +28,22 @@ function SubmitButton() {
 }
 
 export function ContactForm() {
-  const [state, action] = useActionState(submitLead, initialLeadState);
-  const formRef = useRef<HTMLFormElement>(null);
+  const [fields, setFields] = useState(EMPTY_FIELDS);
   const startedAtRef = useRef<HTMLInputElement>(null);
   const landingPathRef = useRef<HTMLInputElement>(null);
   const utmRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [state, action] = useActionState(
+    async (previousState: LeadActionState, formData: FormData) => {
+      const nextState = await submitLead(previousState, formData);
+      if (nextState.status === "success") setFields(EMPTY_FIELDS);
+      setTimeout(() => {
+        if (startedAtRef.current)
+          startedAtRef.current.value = String(Date.now());
+      });
+      return nextState;
+    },
+    initialLeadState,
+  );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -33,15 +56,8 @@ export function ContactForm() {
     }
   }, []);
 
-  useEffect(() => {
-    if (state.status === "success") {
-      formRef.current?.reset();
-      if (startedAtRef.current) startedAtRef.current.value = String(Date.now());
-    }
-  }, [state.status]);
-
   return (
-    <form ref={formRef} action={action} className="lead-form">
+    <form action={action} className="lead-form">
       <div className="field">
         <Label htmlFor="fullName">Nome completo</Label>
         <Input
@@ -51,6 +67,13 @@ export function ContactForm() {
           minLength={2}
           maxLength={120}
           required
+          value={fields.fullName}
+          onChange={(event) =>
+            setFields((current) => ({
+              ...current,
+              fullName: event.target.value,
+            }))
+          }
         />
       </div>
       <div className="field">
@@ -62,6 +85,10 @@ export function ContactForm() {
           autoComplete="email"
           maxLength={254}
           required
+          value={fields.email}
+          onChange={(event) =>
+            setFields((current) => ({ ...current, email: event.target.value }))
+          }
         />
       </div>
       <div className="form-row">
@@ -73,6 +100,13 @@ export function ContactForm() {
             type="tel"
             autoComplete="tel"
             maxLength={30}
+            value={fields.phone}
+            onChange={(event) =>
+              setFields((current) => ({
+                ...current,
+                phone: event.target.value,
+              }))
+            }
           />
         </div>
         <div className="field">
@@ -82,6 +116,13 @@ export function ContactForm() {
             name="company"
             autoComplete="organization"
             maxLength={160}
+            value={fields.company}
+            onChange={(event) =>
+              setFields((current) => ({
+                ...current,
+                company: event.target.value,
+              }))
+            }
           />
         </div>
       </div>
@@ -91,7 +132,13 @@ export function ContactForm() {
           id="serviceInterest"
           name="serviceInterest"
           required
-          defaultValue=""
+          value={fields.serviceInterest}
+          onChange={(event) =>
+            setFields((current) => ({
+              ...current,
+              serviceInterest: event.target.value,
+            }))
+          }
         >
           <option value="" disabled>
             Selecione
@@ -111,6 +158,13 @@ export function ContactForm() {
           maxLength={2000}
           rows={6}
           required
+          value={fields.message}
+          onChange={(event) =>
+            setFields((current) => ({
+              ...current,
+              message: event.target.value,
+            }))
+          }
         />
       </div>
       <div className="honeypot" aria-hidden="true">
@@ -142,7 +196,18 @@ export function ContactForm() {
         ),
       )}
       <label className="consent">
-        <input type="checkbox" name="consent" required />{" "}
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          checked={fields.consent}
+          onChange={(event) =>
+            setFields((current) => ({
+              ...current,
+              consent: event.target.checked,
+            }))
+          }
+        />{" "}
         <span>
           Concordo com o uso destes dados para retorno do contato, conforme a{" "}
           <Link href="/privacy">Política de Privacidade</Link>.
