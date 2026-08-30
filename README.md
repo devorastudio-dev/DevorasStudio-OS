@@ -1,6 +1,6 @@
 # Devora OS
 
-Plataforma operacional interna da Devora Studio. O repositório está na Fase 0: monorepo, interface compartilhada, CI, Supabase versionado, organizações com RLS, autenticação exclusiva por convite e MFA TOTP obrigatório já estão implementados. CRM, landing definitiva, propostas, contratos, projetos, financeiro e produtos SaaS continuam planejados.
+Plataforma operacional interna da Devora Studio. Monorepo, CI, Supabase versionado, organizações com RLS, autenticação por convite, MFA TOTP, papéis, auditoria, landing e CRM base já estão implementados. Pipeline, atividades, conversão, propostas, contratos, projetos, financeiro e produtos SaaS continuam planejados.
 
 A VIZEX é uma operação independente e não pertence a este repositório, seus ambientes ou seus dados.
 
@@ -185,6 +185,10 @@ O workspace `apps/marketing` publica a landing, a política em `/privacy` e o fo
 
 Migração, permissões, controles contra repetição, operação e pendências estão no [guia de captação de leads](docs/lead-capture.md). Antes do deployment, confirme a organização `devora-studio`, aplique a migração pelo fluxo autorizado e configure `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` no projeto Vercel do marketing.
 
+## CRM base
+
+Usuários AAL2 com `crm.read` acessam `/crm`, leads, empresas e contatos. `crm.write` libera cadastro manual, triagem, vínculos e arquivamento lógico. Consultas são paginadas no servidor e RLS mantém o isolamento por tenant. Consulte [CRM base](docs/crm-base.md) para modelo, origens, operação, auditoria e limitações.
+
 ## CI
 
 Em pushes e pull requests para `main`, `.github/workflows/ci.yml` usa Node 24, `npm ci` e cache npm; verifica formatação, lint, tipos, Supabase local, reset, DB lint, pgTAP, Vitest e build. Qualquer falha interrompe o job.
@@ -270,6 +274,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 - [Autenticação, convite e MFA](docs/authentication.md)
 - [Papéis, matriz e bootstrap](docs/access-control.md)
 - [Auditoria básica e retenção](docs/audit.md)
+- [CRM base: leads, empresas e contatos](docs/crm-base.md)
 - [Matriz consolidada de RLS](docs/rls-security.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)
