@@ -24,6 +24,14 @@ export const auditActions = [
   "member.role.removed",
   "permission.assignment.denied",
   "administrator.bootstrap.completed",
+  "crm.opportunity.created",
+  "crm.opportunity.updated",
+  "crm.opportunity.assigned",
+  "crm.opportunity.stage_changed",
+  "crm.opportunity.won",
+  "crm.opportunity.lost",
+  "crm.opportunity.reopened",
+  "crm.opportunity.archived",
 ] as const;
 
 export const auditActionSchema = z.enum(auditActions);

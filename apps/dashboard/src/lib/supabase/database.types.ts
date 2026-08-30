@@ -351,6 +351,201 @@ export type Database = {
           },
         ];
       };
+      opportunities: {
+        Row: {
+          archived_at: string | null;
+          assigned_membership_id: string | null;
+          closed_at: string | null;
+          company_id: string | null;
+          contact_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          estimated_value: number | null;
+          id: string;
+          lead_id: string | null;
+          loss_reason:
+            Database["public"]["Enums"]["opportunity_loss_reason"] | null;
+          loss_reason_detail: string | null;
+          opened_at: string;
+          organization_id: string;
+          stage_id: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+          version: number;
+        };
+        Insert: {
+          archived_at?: string | null;
+          assigned_membership_id?: string | null;
+          closed_at?: string | null;
+          company_id?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          lead_id?: string | null;
+          loss_reason?:
+            Database["public"]["Enums"]["opportunity_loss_reason"] | null;
+          loss_reason_detail?: string | null;
+          opened_at?: string;
+          organization_id: string;
+          stage_id: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Update: {
+          archived_at?: string | null;
+          assigned_membership_id?: string | null;
+          closed_at?: string | null;
+          company_id?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          estimated_value?: number | null;
+          id?: string;
+          lead_id?: string | null;
+          loss_reason?:
+            Database["public"]["Enums"]["opportunity_loss_reason"] | null;
+          loss_reason_detail?: string | null;
+          opened_at?: string;
+          organization_id?: string;
+          stage_id?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_assignee_fk";
+            columns: ["assigned_membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunities_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunities_contact_fk";
+            columns: ["contact_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_contacts";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunities_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunities_lead_fk";
+            columns: ["lead_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunities_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunities_stage_fk";
+            columns: ["stage_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "pipeline_stages";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunities_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      opportunity_stage_history: {
+        Row: {
+          changed_by: string | null;
+          context: string;
+          created_at: string;
+          id: string;
+          new_stage_id: string;
+          opportunity_id: string;
+          organization_id: string;
+          previous_stage_id: string | null;
+        };
+        Insert: {
+          changed_by?: string | null;
+          context?: string;
+          created_at?: string;
+          id?: string;
+          new_stage_id: string;
+          opportunity_id: string;
+          organization_id: string;
+          previous_stage_id?: string | null;
+        };
+        Update: {
+          changed_by?: string | null;
+          context?: string;
+          created_at?: string;
+          id?: string;
+          new_stage_id?: string;
+          opportunity_id?: string;
+          organization_id?: string;
+          previous_stage_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_history_new_stage_fk";
+            columns: ["new_stage_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "pipeline_stages";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunity_history_opportunity_fk";
+            columns: ["opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunity_history_previous_stage_fk";
+            columns: ["previous_stage_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "pipeline_stages";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_changed_by_fkey";
+            columns: ["changed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "opportunity_stage_history_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organization_member_roles: {
         Row: {
           created_at: string;
@@ -481,6 +676,47 @@ export type Database = {
         };
         Relationships: [];
       };
+      pipeline_stages: {
+        Row: {
+          category: Database["public"]["Enums"]["pipeline_stage_category"];
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          position: number;
+          updated_at: string;
+        };
+        Insert: {
+          category?: Database["public"]["Enums"]["pipeline_stage_category"];
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          organization_id: string;
+          position: number;
+          updated_at?: string;
+        };
+        Update: {
+          category?: Database["public"]["Enums"]["pipeline_stage_category"];
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          organization_id?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stages_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -589,6 +825,14 @@ export type Database = {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
       };
+      create_opportunity_from_lead: {
+        Args: {
+          opportunity_title?: string;
+          opportunity_value?: number;
+          target_lead_id: string;
+        };
+        Returns: string;
+      };
       get_my_membership_statuses: {
         Args: never;
         Returns: Database["public"]["Enums"]["organization_member_status"][];
@@ -600,6 +844,16 @@ export type Database = {
       has_role: {
         Args: { target_organization_id?: string; target_role_slug: string };
         Returns: boolean;
+      };
+      move_opportunity: {
+        Args: {
+          expected_version: number;
+          target_loss_detail?: string;
+          target_loss_reason?: Database["public"]["Enums"]["opportunity_loss_reason"];
+          target_opportunity_id: string;
+          target_stage_id: string;
+        };
+        Returns: number;
       };
       record_administrative_audit: {
         Args: {
@@ -643,6 +897,17 @@ export type Database = {
         };
         Returns: string;
       };
+      update_opportunity: {
+        Args: {
+          expected_version: number;
+          opportunity_title: string;
+          opportunity_value?: number;
+          target_archived?: boolean;
+          target_assigned_membership_id?: string;
+          target_opportunity_id: string;
+        };
+        Returns: number;
+      };
     };
     Enums: {
       crm_lead_triage_status:
@@ -659,7 +924,16 @@ export type Database = {
         | "referral"
         | "outbound"
         | "other";
+      opportunity_loss_reason:
+        | "price"
+        | "no_response"
+        | "no_interest"
+        | "timing"
+        | "competitor"
+        | "unmet_need"
+        | "other";
       organization_member_status: "invited" | "active" | "suspended";
+      pipeline_stage_category: "open" | "won" | "lost";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -801,7 +1075,17 @@ export const Constants = {
         "outbound",
         "other",
       ],
+      opportunity_loss_reason: [
+        "price",
+        "no_response",
+        "no_interest",
+        "timing",
+        "competitor",
+        "unmet_need",
+        "other",
+      ],
       organization_member_status: ["invited", "active", "suspended"],
+      pipeline_stage_category: ["open", "won", "lost"],
     },
   },
 } as const;

@@ -1,4 +1,5 @@
 import { Alert, Card } from "@devora/ui";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireCrmAccess } from "../../../../lib/crm/access";
 import { hasPermission } from "../../../../lib/auth/permissions";
@@ -6,6 +7,8 @@ import { createClient } from "../../../../lib/supabase/server";
 import { updateLead } from "../../../../lib/crm/actions";
 import { LeadUpdateForm } from "../../_components/forms";
 import { sourceLabels } from "../../../../lib/crm/constants";
+import { createOpportunityFromLead } from "../../../../lib/crm/pipeline-actions";
+import { PipelineSubmit } from "../../_components/pipeline-submit";
 export default async function LeadDetail({
   params,
   searchParams,
@@ -52,6 +55,12 @@ export default async function LeadDetail({
     .eq("organization_id", access.organization.id)
     .eq("email", lead.email)
     .neq("id", lead.id);
+  const { data: existingOpportunity } = await supabase
+    .from("opportunities")
+    .select("id")
+    .eq("organization_id", access.organization.id)
+    .eq("lead_id", lead.id)
+    .maybeSingle();
   const query = await searchParams;
   return (
     <>
@@ -122,6 +131,42 @@ export default async function LeadDetail({
           <Alert variant="warning">Seu acesso permite somente consulta.</Alert>
         )}
       </div>
+      {canWrite ? (
+        <Card>
+          <h2>Oportunidade comercial</h2>
+          {existingOpportunity ? (
+            <Link href={`/crm/opportunities/${existingOpportunity.id}`}>
+              Abrir oportunidade deste lead
+            </Link>
+          ) : (
+            <form action={createOpportunityFromLead} className="crm-form">
+              <input type="hidden" name="leadId" value={lead.id} />
+              <div>
+                <label htmlFor="opportunity-title">Título</label>
+                <input
+                  id="opportunity-title"
+                  name="title"
+                  defaultValue={`Oportunidade - ${lead.full_name}`}
+                  minLength={2}
+                  maxLength={160}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="opportunity-value">Valor estimado (BRL)</label>
+                <input
+                  id="opportunity-value"
+                  name="estimatedValue"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <PipelineSubmit>Criar oportunidade</PipelineSubmit>
+            </form>
+          )}
+        </Card>
+      ) : null}
     </>
   );
 }

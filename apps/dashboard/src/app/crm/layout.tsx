@@ -21,6 +21,7 @@ export default async function CrmLayout({
         <nav aria-label="Navegação do CRM">
           <Link href="/crm">Visão geral</Link>
           <Link href="/crm/leads">Leads</Link>
+          <Link href="/crm/pipeline">Pipeline</Link>
           <Link href="/crm/companies">Empresas</Link>
           <Link href="/crm/contacts">Contatos</Link>
         </nav>
