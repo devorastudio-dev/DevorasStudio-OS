@@ -1,32 +1,37 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://devorastudio.com.br"),
-  title: {
-    default: "Devora Studio — Soluções digitais",
-    template: "%s | Devora Studio",
-  },
+  title: "Devora Studio | Soluções digitais",
   description:
-    "Soluções digitais para organizar, construir e evoluir negócios.",
+    "Soluções digitais para apresentar, organizar e evoluir negócios.",
   alternates: { canonical: "/" },
+  authors: [{ name: "Devora Studio" }],
   openGraph: {
-    title: "Devora Studio — Soluções digitais",
+    title: "Devora Studio | Soluções digitais",
     description: "Tecnologia útil, construída com clareza e propósito.",
     url: "/",
     siteName: "Devora Studio",
-    locale: "pt_BR",
     type: "website",
+    locale: "pt_BR",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body className="overflow-x-hidden bg-[#030307] antialiased">
+        {children}
+      </body>
     </html>
   );
 }

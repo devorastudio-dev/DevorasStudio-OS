@@ -1,57 +1,113 @@
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen } from "@testing-library/react";
+import Link from "next/link";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("./contact-form", () => ({
-  ContactForm: () => <form aria-label="Formulário de contato" />,
+vi.mock("@/app/_components/navbar", () => ({
+  default: () => (
+    <nav aria-label="Navegação principal">
+      <Link href="/servicos">Serviços</Link>
+      <Link href="/produtos">Produtos</Link>
+      <Link href="/projetos">Projetos</Link>
+      <Link href="/#contato">Contato</Link>
+    </nav>
+  ),
+}));
+vi.mock("@/app/_components/hero", () => ({
+  default: () => (
+    <section id="inicio">
+      <h1>Hero manual</h1>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/services", () => ({
+  default: () => (
+    <section id="servicos">
+      <h2>Serviços</h2>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/portfolio", () => ({
+  default: () => (
+    <section id="portfolio">
+      <h2>Projetos</h2>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/products", () => ({
+  default: () => (
+    <section id="produtos">
+      <h2>Produtos</h2>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/process", () => ({
+  default: () => (
+    <section id="processo">
+      <h2>Processo</h2>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/cta", () => ({
+  default: () => (
+    <section id="contato">
+      <h2>Contato</h2>
+      <form aria-label="Formulário de contato" />
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/faq", () => ({
+  default: () => (
+    <section>
+      <h2>Perguntas frequentes</h2>
+    </section>
+  ),
+}));
+vi.mock("@/app/_components/footer", () => ({
+  default: () => (
+    <footer>
+      <a href="/privacy">Política de Privacidade</a>
+      <a href="https://app.devorastudio.com.br">Acesso interno</a>
+    </footer>
+  ),
 }));
 
 import MarketingHome from "./page";
 
 describe("MarketingHome", () => {
-  it("mantém landmarks, hierarquia e destinos principais acessíveis", () => {
-    render(<MarketingHome />);
+  it("integra todas as seções manuais e o formulário seguro", () => {
+    const { container } = render(<MarketingHome />);
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("main")).toHaveAttribute("id", "conteudo");
-    expect(
-      screen.getByRole("navigation", { name: "Navegação principal" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("navigation", { name: "Navegação móvel" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Pular para o conteúdo" }),
-    ).toHaveAttribute("href", "#conteudo");
-    expect(screen.getAllByRole("link", { name: "Contato" })).toHaveLength(2);
+    for (const id of [
+      "inicio",
+      "servicos",
+      "portfolio",
+      "produtos",
+      "processo",
+      "contato",
+    ]) {
+      expect(container.querySelector(`#${id}`)).toBeInTheDocument();
+    }
     expect(
       screen.getByRole("form", { name: "Formulário de contato" }),
     ).toBeInTheDocument();
   });
 
-  it("apresenta somente os três serviços aprovados", () => {
+  it("mantém navegação, privacidade e dashboard nos destinos corretos", () => {
     render(<MarketingHome />);
-    const services = screen
-      .getByRole("heading", { name: "Do problema à solução digital." })
-      .closest("section");
 
-    expect(services).not.toBeNull();
-    expect(within(services!).getAllByRole("article")).toHaveLength(3);
-    expect(within(services!).getByText("Presença digital")).toBeInTheDocument();
     expect(
-      within(services!).getByText("Sistemas para o negócio"),
-    ).toBeInTheDocument();
-    expect(within(services!).getByText("Automações")).toBeInTheDocument();
-  });
-
-  it("abre a navegação móvel sem JavaScript de aplicação", async () => {
-    const user = userEvent.setup();
-    render(<MarketingHome />);
-    const summary = screen.getByLabelText("Abrir menu de navegação");
-    const menu = summary.closest("details");
-
-    expect(menu).not.toHaveAttribute("open");
-    await user.click(summary);
-    expect(menu).toHaveAttribute("open");
+      screen.getByRole("link", { name: "Pular para o conteúdo" }),
+    ).toHaveAttribute("href", "#conteudo");
+    expect(
+      screen.getByRole("link", { name: "Política de Privacidade" }),
+    ).toHaveAttribute("href", "/privacy");
+    expect(
+      screen.getByRole("link", { name: "Acesso interno" }),
+    ).toHaveAttribute("href", "https://app.devorastudio.com.br");
+    for (const link of screen.getAllByRole("link")) {
+      expect(link.getAttribute("href")).not.toBe("#");
+    }
   });
 });

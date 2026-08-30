@@ -40,6 +40,9 @@ describe("submitLead", () => {
   });
 
   it("retorna erro genérico e recuperável quando a infraestrutura falha", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
     rpc.mockResolvedValue({ error: new Error("internal detail") });
     const state = await submitLead(initialLeadState, validForm());
     expect(state).toEqual({
@@ -48,6 +51,10 @@ describe("submitLead", () => {
         "Não foi possível enviar agora. Seus dados foram mantidos; tente novamente.",
     });
     expect(state.message).not.toContain("internal detail");
+    expect(consoleError).toHaveBeenCalledWith(
+      "Falha operacional ao enviar lead pelo formulário público.",
+    );
+    consoleError.mockRestore();
   });
 
   it("não persiste submissão detectada pelo honeypot", async () => {

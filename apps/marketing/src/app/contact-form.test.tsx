@@ -21,7 +21,10 @@ async function fillValidForm() {
 }
 
 describe("ContactForm", () => {
-  beforeEach(() => submitLead.mockReset());
+  beforeEach(() => {
+    submitLead.mockReset();
+    window.history.replaceState({}, "", "/");
+  });
 
   it("envia pela Server Action sem navegação e anuncia o sucesso", async () => {
     submitLead.mockResolvedValue({
@@ -59,6 +62,53 @@ describe("ContactForm", () => {
     expect(screen.getByLabelText("E-mail")).toHaveValue("maria@example.com");
     expect(screen.getByLabelText("Conte um pouco sobre o desafio")).toHaveValue(
       "Quero entender uma automação para o meu processo.",
+    );
+  });
+
+  it("deixa a validação nativa bloquear um e-mail inválido", async () => {
+    render(<ContactForm />);
+    const user = await fillValidForm();
+    const email = screen.getByLabelText("E-mail");
+    await user.clear(email);
+    await user.type(email, "email-invalido");
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+
+    expect(email).toBeInvalid();
+    expect(submitLead).not.toHaveBeenCalled();
+  });
+
+  it("envia a origem e as UTMs sem permitir submissões concorrentes", async () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?utm_source=google&utm_medium=cpc&utm_campaign=lancamento",
+    );
+    let resolveAction:
+      ((value: { status: "success"; message: string }) => void) | undefined;
+    submitLead.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveAction = resolve;
+        }),
+    );
+    render(<ContactForm />);
+    const user = await fillValidForm();
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+
+    const pendingButton = await screen.findByRole("button", {
+      name: "Enviando…",
+    });
+    expect(pendingButton).toBeDisabled();
+    expect(submitLead).toHaveBeenCalledOnce();
+    const formData = submitLead.mock.calls[0]?.[1] as FormData;
+    expect(formData.get("landingPath")).toBe("/");
+    expect(formData.get("utmSource")).toBe("google");
+    expect(formData.get("utmMedium")).toBe("cpc");
+    expect(formData.get("utmCampaign")).toBe("lancamento");
+
+    resolveAction?.({ status: "success", message: "Mensagem recebida." });
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Mensagem recebida.",
     );
   });
 });

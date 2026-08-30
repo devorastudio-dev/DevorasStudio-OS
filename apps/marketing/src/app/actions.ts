@@ -65,6 +65,7 @@ export async function submitLead(
       message: "Recebemos sua mensagem. Obrigado pelo contato.",
     };
   } catch {
+    console.error("Falha operacional ao enviar lead pelo formulário público.");
     return {
       status: "error",
       message:
