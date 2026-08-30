@@ -1,6 +1,6 @@
 # Devora OS
 
-Plataforma operacional interna da Devora Studio. Monorepo, CI, Supabase versionado, organizações com RLS, autenticação por convite, MFA TOTP, papéis, auditoria, landing, CRM base e pipeline comercial já estão implementados. Atividades, propostas, contratos, projetos, financeiro e produtos SaaS continuam planejados.
+Plataforma operacional interna da Devora Studio. Monorepo, CI, Supabase versionado, organizações com RLS, autenticação por convite, MFA TOTP, papéis, auditoria, landing, CRM base, pipeline, atividades e tarefas comerciais já estão implementados. Propostas, contratos, projetos, financeiro e produtos SaaS continuam planejados.
 
 A VIZEX é uma operação independente e não pertence a este repositório, seus ambientes ou seus dados.
 
@@ -193,6 +193,10 @@ Usuários AAL2 com `crm.read` acessam `/crm`, leads, empresas e contatos. `crm.w
 
 O dashboard expõe `/crm/pipeline` para membros AAL2 com `crm.read`. A conversão de leads e as mutações de oportunidades exigem `crm.write`, passam por RPCs transacionais e registram histórico e auditoria. Consulte [Pipeline comercial e oportunidades](docs/crm-pipeline.md) para operação, segurança, rollout e limitações.
 
+## Atividades e tarefas comerciais
+
+Interações realizadas são atividades; ações futuras são tarefas com prazo e responsável. A próxima ação de um lead ou oportunidade é derivada da tarefa pendente mais próxima. A visão `/crm/tasks` apresenta vencimentos e alertas operacionais. Consulte [Atividades, tarefas e próxima ação](docs/crm-activities-tasks.md).
+
 ## CI
 
 Em pushes e pull requests para `main`, `.github/workflows/ci.yml` usa Node 24, `npm ci` e cache npm; verifica formatação, lint, tipos, Supabase local, reset, DB lint, pgTAP, Vitest e build. Qualquer falha interrompe o job.
@@ -280,6 +284,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 - [Auditoria básica e retenção](docs/audit.md)
 - [CRM base: leads, empresas e contatos](docs/crm-base.md)
 - [Pipeline comercial e oportunidades](docs/crm-pipeline.md)
+- [Atividades, tarefas e próxima ação](docs/crm-activities-tasks.md)
 - [Matriz consolidada de RLS](docs/rls-security.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)
