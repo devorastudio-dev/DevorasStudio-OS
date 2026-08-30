@@ -1,31 +1,38 @@
-# Direção visual do marketing
+# Direção visual e navegação do marketing
 
-## Decisão
+## Fonte visual
 
-A landing do Devora Studio usa uma direção escura e tecnológica, com roxo como cor principal, ciano como acento, superfícies discretas e hierarquia tipográfica ampla. A referência autorizada foi o repositório histórico `devorastudio-dev/Portifolio`, consultado somente para leitura durante a C1.1.
+A implementação manual integrada na C1.2 é a fonte da verdade visual da landing do Devora Studio. Ela usa fundo escuro, roxo como cor principal, ciano como acento, luzes atmosféricas, imagens de projetos e animações pontuais com `motion`.
 
-O código, a arquitetura, o conteúdo e a segurança da landing atual continuam sendo a fonte da verdade. A referência antiga não deve ser copiada integralmente.
+A integração preservou a composição manual e a conciliou com a arquitetura e os controles de segurança do repositório. Não substitua a Server Action, o formulário, a validação, a privacidade ou a captura de UTMs por implementações apenas visuais.
 
-## Elementos adaptados
+## Mapa de navegação
 
-- paleta escura com roxo e ciano;
-- gradientes tipográficos e luzes atmosféricas discretas;
-- grade de fundo, cartões escuros e painel visual no hero;
-- marca geométrica recriada em CSS para funcionar em qualquer densidade;
-- ritmo amplo entre seções e chamadas para a ação.
+- `/#inicio`, `/#servicos`, `/#portfolio`, `/#produtos`, `/#processo` e `/#contato` identificam seções da landing;
+- `/servicos`, `/produtos` e `/projetos` são índices públicos;
+- `/servicos/[slug]`, `/produtos/[slug]` e `/projects/[slug]` são detalhes gerados a partir dos catálogos locais;
+- `/privacy` descreve o tratamento dos dados do formulário;
+- `https://app.devorastudio.com.br` é o único destino do dashboard e permanece fora do workspace de marketing.
 
-Nenhum arquivo binário foi copiado. O logotipo raster histórico foi inspecionado, mas não reutilizado porque incorpora fundo preto e não oferece a flexibilidade necessária.
+Links entre rotas usam `next/link`. Links externos abrem uma nova aba somente quando isso é útil e devem manter `rel="noopener noreferrer"`. Não deixe `href="#"` como destino provisório.
 
-## Elementos deliberadamente excluídos
+## Conteúdo e publicação
 
-Cases, imagens de projetos, depoimentos, produtos, métricas, prazos, garantias, preços, contatos, endereços e redes sociais do repositório antigo não foram reutilizados. Esses dados exigem confirmação editorial antes de qualquer publicação.
+Textos, cases, imagens, produtos e descrições provenientes da edição manual precisam de validação editorial da proprietária. Depoimentos, contatos, endereços, redes sociais, métricas, prazos e garantias não devem ser publicados sem confirmação verificável.
 
-Animações contínuas, bibliotecas de movimento, efeitos de desfoque excessivos e dependências visuais adicionais também foram descartados. A implementação atual prioriza CSS, Server Components, foco visível, contraste e `prefers-reduced-motion`.
+Antes de publicar uma alteração:
+
+1. execute `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` e `npm run build` na raiz;
+2. revise a landing em 320, 375, 768, 1024 e 1440 px, incluindo menu móvel, foco por teclado e `prefers-reduced-motion`;
+3. percorra os links internos, as rotas de detalhe, a privacidade e o destino do dashboard;
+4. teste sucesso, falha e reenvio do formulário sem recarregar a página;
+5. siga `docs/lead-capture.md` para validar a persistência e operar o fluxo de leads.
 
 ## Manutenção
 
-- preserve um único `h1` e a ordem semântica dos títulos;
-- mantenha textos e links comerciais limitados ao que estiver confirmado;
-- valide mudanças em 320, 375, 768, 1024 e 1440 px;
-- não acople o marketing ao dashboard nem exponha configuração server-side;
-- mantenha o formulário, sua Server Action e as proteções descritas em `docs/lead-capture.md`.
+- preserve um único `h1` por página e a ordem semântica dos títulos;
+- mantenha a navegação por teclado, nomes acessíveis e foco visível;
+- honre `prefers-reduced-motion` ao adicionar movimento;
+- confirme a capitalização dos nomes dos assets, pois o deploy usa filesystem sensível a maiúsculas;
+- não acople o marketing a módulos internos do dashboard nem exponha configuração server-side;
+- adicione dependências somente quando forem efetivamente usadas e mantenha uma única biblioteca de movimento.
