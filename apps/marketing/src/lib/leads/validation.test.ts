@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { isAutomatedSubmission, leadSchema } from "./validation";
+import { evaluateSubmissionTiming, leadSchema } from "./validation";
 
 const validLead = {
-  fullName: "Maria Silva",
-  email: "maria@example.com",
+  fullName: "Pessoa Fictícia",
+  email: "lead@example.invalid",
   phone: "",
   company: "",
   serviceInterest: "automation",
-  message: "Quero entender uma automação para o meu processo.",
+  message: "Mensagem sintética suficientemente longa para o teste.",
   consent: "on",
   landingPath: "/",
   utmSource: "campaign",
@@ -20,7 +20,7 @@ const validLead = {
 describe("leadSchema", () => {
   it("normaliza um lead público válido", () => {
     const result = leadSchema.parse(validLead);
-    expect(result.email).toBe("maria@example.com");
+    expect(result.email).toBe("lead@example.invalid");
     expect(result.phone).toBeNull();
   });
   it("rejeita mensagem curta e consentimento ausente", () => {
@@ -37,12 +37,13 @@ describe("leadSchema", () => {
   });
 });
 
-describe("isAutomatedSubmission", () => {
-  it("detecta honeypot preenchido", () => {
-    expect(isAutomatedSubmission("bot", "1000", 5000)).toBe(true);
-  });
-  it("detecta envio rápido e aceita tempo plausível", () => {
-    expect(isAutomatedSubmission("", "4000", 5000)).toBe(true);
-    expect(isAutomatedSubmission("", "1000", 5000)).toBe(false);
+describe("evaluateSubmissionTiming", () => {
+  it("separa timestamp inválido, envio rápido e tempo válido", () => {
+    expect(evaluateSubmissionTiming("", 5_000)).toBe("missing_or_invalid");
+    expect(evaluateSubmissionTiming("invalid", 5_000)).toBe(
+      "missing_or_invalid",
+    );
+    expect(evaluateSubmissionTiming("4000", 5_000)).toBe("too_fast");
+    expect(evaluateSubmissionTiming("1000", 5_000)).toBe("valid");
   });
 });

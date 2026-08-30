@@ -111,4 +111,36 @@ describe("ContactForm", () => {
       "Mensagem recebida.",
     );
   });
+
+  it("permite tentar novamente depois de uma falha", async () => {
+    submitLead
+      .mockResolvedValueOnce({
+        status: "error",
+        message: "Não foi possível enviar agora.",
+      })
+      .mockResolvedValueOnce({
+        status: "success",
+        message: "Recebemos sua mensagem. Obrigado pelo contato.",
+      });
+    render(<ContactForm />);
+    const user = await fillValidForm();
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "Recebemos sua mensagem",
+    );
+    expect(submitLead).toHaveBeenCalledTimes(2);
+  });
+
+  it("mantém o honeypot fora do autofill e da navegação por teclado", () => {
+    const { container } = render(<ContactForm />);
+    const honeypot = container.querySelector<HTMLInputElement>(
+      'input[name="fax_extension_7f3a"]',
+    );
+    expect(honeypot).toHaveAttribute("autocomplete", "off");
+    expect(honeypot).toHaveAttribute("tabindex", "-1");
+    expect(honeypot).toHaveAttribute("data-1p-ignore", "true");
+    expect(honeypot).toHaveValue("");
+  });
 });

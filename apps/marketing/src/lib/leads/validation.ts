@@ -35,16 +35,14 @@ export const leadSchema = z.object({
 
 export type LeadInput = z.infer<typeof leadSchema>;
 
-export function isAutomatedSubmission(
-  honeypot: string,
+export type SubmissionTiming = "valid" | "missing_or_invalid" | "too_fast";
+
+export function evaluateSubmissionTiming(
   startedAt: string,
   now = Date.now(),
-) {
+): SubmissionTiming {
   const start = Number(startedAt);
-  return (
-    honeypot.length > 0 ||
-    !Number.isFinite(start) ||
-    start <= 0 ||
-    now - start < 2_000
-  );
+  if (!startedAt || !Number.isFinite(start) || start <= 0 || start > now)
+    return "missing_or_invalid";
+  return now - start < 2_000 ? "too_fast" : "valid";
 }

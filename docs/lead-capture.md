@@ -2,9 +2,11 @@
 
 ## Arquitetura
 
-O formulário público do workspace `apps/marketing` envia uma Server Action. A ação valida os campos com Zod, descarta silenciosamente o honeypot e envios rápidos e chama `submit_public_lead` com uma Publishable key. Não existe `INSERT` direto para `anon`.
+O formulário público do workspace `apps/marketing` envia uma Server Action. A ação valida os campos com Zod, descarta silenciosamente somente o honeypot e chama `submit_public_lead` com uma Publishable key. O botão fica indisponível até o timestamp ser iniciado após a hidratação; timestamp ausente, inválido ou rápido demais produz erro recuperável, nunca falso sucesso. Não existe `INSERT` direto para `anon`.
 
-A RPC `security definer` aceita somente os campos públicos, resolve a organização pelo slug fixo `devora-studio` e define internamente origem, status, consentimento e datas. O banco serializa envios por e-mail, ignora a mesma mensagem por dez minutos e limita a três mensagens por e-mail a cada hora. A resposta ao visitante é genérica. Não são armazenados IP, user agent ou parâmetros desconhecidos.
+A RPC `security definer` aceita somente os campos públicos, resolve a organização pelo slug fixo `devora-studio` e define internamente origem, status, consentimento e datas. Ela retorna `persisted` somente após `INSERT ... RETURNING`, `duplicate` quando confirma uma linha equivalente existente, `rate_limited` no limite horário e `organization_not_found` quando o destino não existe. Falha de configuração, transporte, RPC ou resultado desconhecido nunca vira sucesso. O banco serializa envios por e-mail, ignora a mesma mensagem por dez minutos e limita a três mensagens por e-mail a cada hora. Não são armazenados IP, user agent ou parâmetros desconhecidos.
+
+Logs server-side contêm somente `request_id`, resultado catalogado, código técnico sanitizado e duração. Nunca inclua nome, e-mail, telefone, mensagem ou payload nesses logs.
 
 Leitura exige AAL2, vínculo ativo e `crm.read`. Nesta entrega não há atualização ou exclusão direta de leads. Toda evolução do schema deve ocorrer por migração.
 

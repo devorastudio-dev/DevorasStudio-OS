@@ -1,5 +1,5 @@
 begin;
-select plan(13);
+select plan(19);
 
 create extension if not exists pgtap with schema extensions;
 
@@ -20,19 +20,32 @@ join public.roles r on r.organization_id = m.organization_id and r.slug = 'colab
 where m.user_id = '10000000-0000-0000-0000-000000000011';
 
 set local role anon;
-select lives_ok($$ select public.submit_public_lead('Maria Silva', 'MARIA@example.com', '', '', 'automation', 'Mensagem suficientemente longa para contato.', '/', 'google', null, null, null, null) $$, 'anonymous visitor submits through restricted RPC');
+select is(public.submit_public_lead('Pessoa Ficticia', 'LEAD@example.invalid', '', '', 'automation', 'Mensagem sintetica suficientemente longa para contato.', '/', 'google', null, null, null, null), 'persisted', 'RPC confirms persistence');
 select throws_ok($$ insert into public.leads (organization_id, full_name, email, service_interest, message, submission_fingerprint) values ('10000000-0000-0000-0000-000000000001', 'Direct Insert', 'direct@example.com', 'other', 'Mensagem suficientemente longa para contato.', md5('x')) $$, '42501', null, 'anonymous direct insert is denied');
 select throws_ok($$ select * from public.leads $$, '42501', 'permission denied for table leads', 'anonymous cannot read leads');
 reset role;
 
-select is((select count(*) from public.leads where email = 'maria@example.com'), 1::bigint, 'RPC normalizes and stores the lead');
-select is((select organization_id from public.leads where email = 'maria@example.com'), '10000000-0000-0000-0000-000000000001'::uuid, 'RPC resolves the fixed organization');
-select is((select status from public.leads where email = 'maria@example.com'), 'new', 'RPC controls workflow status');
+select is((select count(*) from public.leads where email = 'lead@example.invalid'), 1::bigint, 'RPC normalizes and stores exactly one lead');
+select is((select organization_id from public.leads where email = 'lead@example.invalid'), '10000000-0000-0000-0000-000000000001'::uuid, 'RPC resolves the fixed organization');
+select is((select status from public.leads where email = 'lead@example.invalid'), 'new', 'RPC controls workflow status');
 
 set local role anon;
-select public.submit_public_lead('Maria Silva', 'maria@example.com', '', '', 'automation', 'Mensagem suficientemente longa para contato.', '/', null, null, null, null, null);
+select is(public.submit_public_lead('Pessoa Ficticia', 'lead@example.invalid', '', '', 'automation', 'Mensagem sintetica suficientemente longa para contato.', '/', null, null, null, null, null), 'duplicate', 'duplicate returns a verified outcome');
 reset role;
-select is((select count(*) from public.leads where email = 'maria@example.com'), 1::bigint, 'duplicate submission is idempotent');
+select is((select count(*) from public.leads where email = 'lead@example.invalid'), 1::bigint, 'duplicate submission is idempotent');
+
+set local role anon;
+select is(public.submit_public_lead('Pessoa Ficticia', 'lead@example.invalid', '', '', 'automation', 'Segunda mensagem sintetica suficientemente longa.', '/', null, null, null, null, null), 'persisted', 'second distinct message persists');
+select is(public.submit_public_lead('Pessoa Ficticia', 'lead@example.invalid', '', '', 'automation', 'Terceira mensagem sintetica suficientemente longa.', '/', null, null, null, null, null), 'persisted', 'third distinct message persists');
+select is(public.submit_public_lead('Pessoa Ficticia', 'lead@example.invalid', '', '', 'automation', 'Quarta mensagem sintetica suficientemente longa.', '/', null, null, null, null, null), 'rate_limited', 'fourth message is rate limited');
+reset role;
+select is((select count(*) from public.leads where email = 'lead@example.invalid'), 3::bigint, 'rate limit does not insert another lead');
+
+update public.organizations set slug = 'temporarily-unavailable' where id = '10000000-0000-0000-0000-000000000001';
+set local role anon;
+select is(public.submit_public_lead('Pessoa Ficticia', 'other@example.invalid', '', '', 'automation', 'Mensagem sintetica suficientemente longa.', '/', null, null, null, null, null), 'organization_not_found', 'missing destination is explicit');
+reset role;
+update public.organizations set slug = 'devora-studio' where id = '10000000-0000-0000-0000-000000000001';
 
 select throws_ok($$ insert into public.leads (organization_id, full_name, email, service_interest, message, submission_fingerprint) values ('10000000-0000-0000-0000-000000000001', 'A', 'invalid', 'unknown', 'short', md5('x')) $$, '23514', null, 'database constraints reject invalid payload');
 
@@ -41,7 +54,7 @@ select set_config('request.jwt.claims','{"sub":"10000000-0000-0000-0000-00000000
 select is((select count(*) from public.leads), 0::bigint, 'user without membership cannot read leads');
 
 select set_config('request.jwt.claims','{"sub":"10000000-0000-0000-0000-000000000011","role":"authenticated","aal":"aal2"}',true);
-select is((select count(*) from public.leads), 1::bigint, 'member with crm.read reads organization leads');
+select is((select count(*) from public.leads), 3::bigint, 'member with crm.read reads organization leads');
 select throws_ok($$ delete from public.leads $$, '42501', null, 'authenticated users cannot delete leads');
 select lives_ok($$ update public.leads set triage_status = 'in_review' $$, 'crm.write gerencia triagem sem alterar a captura C1');
 

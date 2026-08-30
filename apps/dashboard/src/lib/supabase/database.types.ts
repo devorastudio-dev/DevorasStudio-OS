@@ -7,11 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
   public: {
     Tables: {
       audit_logs: {
@@ -646,7 +641,7 @@ export type Database = {
           utm_source?: string;
           utm_term?: string;
         };
-        Returns: boolean;
+        Returns: string;
       };
     };
     Enums: {

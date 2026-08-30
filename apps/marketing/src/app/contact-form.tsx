@@ -18,10 +18,10 @@ const EMPTY_FIELDS = {
   consent: false,
 };
 
-function SubmitButton() {
+function SubmitButton({ ready }: { ready: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending || !ready}>
       {pending ? "Enviando…" : "Enviar mensagem"}
     </Button>
   );
@@ -29,7 +29,7 @@ function SubmitButton() {
 
 export function ContactForm() {
   const [fields, setFields] = useState(EMPTY_FIELDS);
-  const startedAtRef = useRef<HTMLInputElement>(null);
+  const [startedAt, setStartedAt] = useState("");
   const landingPathRef = useRef<HTMLInputElement>(null);
   const utmRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [state, action] = useActionState(
@@ -37,8 +37,7 @@ export function ContactForm() {
       const nextState = await submitLead(previousState, formData);
       if (nextState.status === "success") setFields(EMPTY_FIELDS);
       setTimeout(() => {
-        if (startedAtRef.current)
-          startedAtRef.current.value = String(Date.now());
+        setStartedAt(String(Date.now()));
       });
       return nextState;
     },
@@ -47,13 +46,17 @@ export function ContactForm() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (startedAtRef.current) startedAtRef.current.value = String(Date.now());
+    const timingInitializer = window.setTimeout(
+      () => setStartedAt(String(Date.now())),
+      0,
+    );
     if (landingPathRef.current)
       landingPathRef.current.value = window.location.pathname;
     for (const name of ["source", "medium", "campaign", "content", "term"]) {
       const input = utmRefs.current[name];
       if (input) input.value = params.get(`utm_${name}`) ?? "";
     }
+    return () => window.clearTimeout(timingInitializer);
   }, []);
 
   return (
@@ -167,16 +170,18 @@ export function ContactForm() {
           }
         />
       </div>
-      <div className="honeypot" aria-hidden="true">
-        <Label htmlFor="website">Website</Label>
-        <Input id="website" name="website" tabIndex={-1} autoComplete="off" />
+      <div className="honeypot" aria-hidden="true" inert>
+        <Label htmlFor="fax_extension_7f3a">Não preencha este campo</Label>
+        <Input
+          id="fax_extension_7f3a"
+          name="fax_extension_7f3a"
+          tabIndex={-1}
+          autoComplete="off"
+          data-1p-ignore="true"
+          data-lpignore="true"
+        />
       </div>
-      <input
-        ref={startedAtRef}
-        type="hidden"
-        name="startedAt"
-        defaultValue="0"
-      />
+      <input type="hidden" name="startedAt" value={startedAt} readOnly />
       <input
         ref={landingPathRef}
         type="hidden"
@@ -221,7 +226,7 @@ export function ContactForm() {
           {state.message}
         </p>
       ) : null}
-      <SubmitButton />
+      <SubmitButton ready={Boolean(startedAt)} />
     </form>
   );
 }
