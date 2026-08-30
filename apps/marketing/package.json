@@ -7,13 +7,16 @@
     "dev": "next dev --port 3000",
     "lint": "eslint . --max-warnings=0",
     "start": "next start --port 3000",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@devora/ui": "*",
+    "@supabase/supabase-js": "2.112.4",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "zod": "4.5.2"
   },
   "devDependencies": {
     "@devora/config": "*",
