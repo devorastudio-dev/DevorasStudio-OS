@@ -63,6 +63,104 @@ export type Database = {
           },
         ];
       };
+      crm_activities: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["crm_activity_type"];
+          assigned_membership_id: string;
+          company_id: string | null;
+          contact_id: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          lead_id: string | null;
+          occurred_at: string;
+          opportunity_id: string | null;
+          organization_id: string;
+          title: string;
+        };
+        Insert: {
+          activity_type: Database["public"]["Enums"]["crm_activity_type"];
+          assigned_membership_id: string;
+          company_id?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          id?: string;
+          lead_id?: string | null;
+          occurred_at: string;
+          opportunity_id?: string | null;
+          organization_id: string;
+          title: string;
+        };
+        Update: {
+          activity_type?: Database["public"]["Enums"]["crm_activity_type"];
+          assigned_membership_id?: string;
+          company_id?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          id?: string;
+          lead_id?: string | null;
+          occurred_at?: string;
+          opportunity_id?: string | null;
+          organization_id?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_assignee_fk";
+            columns: ["assigned_membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_activities_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_activities_contact_fk";
+            columns: ["contact_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_contacts";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_activities_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_activities_lead_fk";
+            columns: ["lead_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_activities_opportunity_fk";
+            columns: ["opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_activities_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       crm_companies: {
         Row: {
           created_at: string;
@@ -212,6 +310,126 @@ export type Database = {
             columns: ["updated_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      crm_tasks: {
+        Row: {
+          assigned_membership_id: string;
+          cancelled_at: string | null;
+          company_id: string | null;
+          completed_at: string | null;
+          completed_by: string | null;
+          contact_id: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          due_at: string;
+          id: string;
+          lead_id: string | null;
+          opportunity_id: string | null;
+          organization_id: string;
+          status: Database["public"]["Enums"]["crm_task_status"];
+          title: string;
+          updated_at: string;
+          version: number;
+        };
+        Insert: {
+          assigned_membership_id: string;
+          cancelled_at?: string | null;
+          company_id?: string | null;
+          completed_at?: string | null;
+          completed_by?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          due_at: string;
+          id?: string;
+          lead_id?: string | null;
+          opportunity_id?: string | null;
+          organization_id: string;
+          status?: Database["public"]["Enums"]["crm_task_status"];
+          title: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          assigned_membership_id?: string;
+          cancelled_at?: string | null;
+          company_id?: string | null;
+          completed_at?: string | null;
+          completed_by?: string | null;
+          contact_id?: string | null;
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          due_at?: string;
+          id?: string;
+          lead_id?: string | null;
+          opportunity_id?: string | null;
+          organization_id?: string;
+          status?: Database["public"]["Enums"]["crm_task_status"];
+          title?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "crm_tasks_assignee_fk";
+            columns: ["assigned_membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_completed_by_fkey";
+            columns: ["completed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_contact_fk";
+            columns: ["contact_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_contacts";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_lead_fk";
+            columns: ["lead_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_opportunity_fk";
+            columns: ["opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_tasks_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
         ];
@@ -825,6 +1043,33 @@ export type Database = {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
       };
+      create_crm_activity: {
+        Args: {
+          activity_description: string;
+          activity_kind: Database["public"]["Enums"]["crm_activity_type"];
+          activity_occurred_at: string;
+          activity_title: string;
+          target_assigned_membership_id: string;
+          target_company_id?: string;
+          target_contact_id?: string;
+          target_lead_id?: string;
+          target_opportunity_id?: string;
+        };
+        Returns: string;
+      };
+      create_crm_task: {
+        Args: {
+          target_assigned_membership_id: string;
+          target_company_id?: string;
+          target_contact_id?: string;
+          target_lead_id?: string;
+          target_opportunity_id?: string;
+          task_description: string;
+          task_due_at: string;
+          task_title: string;
+        };
+        Returns: string;
+      };
       create_opportunity_from_lead: {
         Args: {
           opportunity_title?: string;
@@ -897,6 +1142,14 @@ export type Database = {
         };
         Returns: string;
       };
+      transition_crm_task: {
+        Args: {
+          expected_version: number;
+          target_status: Database["public"]["Enums"]["crm_task_status"];
+          target_task_id: string;
+        };
+        Returns: number;
+      };
       update_opportunity: {
         Args: {
           expected_version: number;
@@ -910,6 +1163,14 @@ export type Database = {
       };
     };
     Enums: {
+      crm_activity_type:
+        | "call"
+        | "whatsapp"
+        | "email"
+        | "meeting"
+        | "instagram"
+        | "note"
+        | "other";
       crm_lead_triage_status:
         "new" | "in_review" | "qualified" | "disqualified";
       crm_record_state: "active" | "archived";
@@ -924,6 +1185,7 @@ export type Database = {
         | "referral"
         | "outbound"
         | "other";
+      crm_task_status: "pending" | "completed" | "cancelled";
       opportunity_loss_reason:
         | "price"
         | "no_response"
@@ -1061,6 +1323,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      crm_activity_type: [
+        "call",
+        "whatsapp",
+        "email",
+        "meeting",
+        "instagram",
+        "note",
+        "other",
+      ],
       crm_lead_triage_status: ["new", "in_review", "qualified", "disqualified"],
       crm_record_state: ["active", "archived"],
       crm_source: [
@@ -1075,6 +1346,7 @@ export const Constants = {
         "outbound",
         "other",
       ],
+      crm_task_status: ["pending", "completed", "cancelled"],
       opportunity_loss_reason: [
         "price",
         "no_response",

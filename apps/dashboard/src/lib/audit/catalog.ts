@@ -32,6 +32,13 @@ export const auditActions = [
   "crm.opportunity.lost",
   "crm.opportunity.reopened",
   "crm.opportunity.archived",
+  "crm.activity.created",
+  "crm.task.created",
+  "crm.task.updated",
+  "crm.task.assigned",
+  "crm.task.completed",
+  "crm.task.cancelled",
+  "crm.task.reopened",
 ] as const;
 
 export const auditActionSchema = z.enum(auditActions);

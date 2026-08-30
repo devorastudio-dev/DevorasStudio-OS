@@ -1,0 +1,56 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+select plan(34);
+select has_table('public','crm_activities','activities exist');
+select has_table('public','crm_tasks','tasks exist');
+select col_type_is('public','crm_activities','activity_type','public.crm_activity_type','activity type controlled');
+select col_type_is('public','crm_tasks','status','public.crm_task_status','task status controlled');
+select ok(not has_table_privilege('anon','public.crm_activities','SELECT'),'anon cannot read activities');
+select ok(not has_table_privilege('anon','public.crm_tasks','INSERT'),'anon cannot write tasks');
+select ok(not has_table_privilege('authenticated','public.crm_tasks','INSERT'),'authenticated uses task RPC');
+select ok(not has_table_privilege('authenticated','public.crm_activities','UPDATE'),'activities are immutable to client');
+
+insert into public.organizations(id,name,slug) values ('40000000-0000-4000-8000-000000000001','C4 A','c4-a'),('40000000-0000-4000-8000-000000000002','C4 B','c4-b');
+insert into auth.users(id,email,created_at,updated_at) values
+('40000000-0000-4000-8000-000000000011','writer-a@example.invalid',now(),now()),('40000000-0000-4000-8000-000000000012','reader-a@example.invalid',now(),now()),('40000000-0000-4000-8000-000000000013','invited-a@example.invalid',now(),now()),('40000000-0000-4000-8000-000000000014','suspended-a@example.invalid',now(),now()),('40000000-0000-4000-8000-000000000015','writer-b@example.invalid',now(),now());
+insert into public.organization_members(id,organization_id,user_id,status) values
+('40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000011','active'),('40000000-0000-4000-8000-000000000022','40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000012','active'),('40000000-0000-4000-8000-000000000023','40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000013','invited'),('40000000-0000-4000-8000-000000000024','40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000014','suspended'),('40000000-0000-4000-8000-000000000025','40000000-0000-4000-8000-000000000002','40000000-0000-4000-8000-000000000015','active');
+insert into public.organization_member_roles(organization_id,membership_id,role_id) select m.organization_id,m.id,r.id from public.organization_members m join public.roles r on r.organization_id=m.organization_id and r.slug='colaborador' where m.id in('40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000025');
+insert into public.roles(id,organization_id,name,slug,description) values('40000000-0000-4000-8000-000000000031','40000000-0000-4000-8000-000000000001','Leitor C4','leitor-c4','Leitura sintetica');
+insert into public.role_permissions(role_id,permission_id) select '40000000-0000-4000-8000-000000000031',id from public.permissions where key='crm.read';
+insert into public.organization_member_roles(organization_id,membership_id,role_id) values('40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000022','40000000-0000-4000-8000-000000000031');
+insert into public.crm_companies(id,organization_id,display_name,normalized_name) values('40000000-0000-4000-8000-000000000041','40000000-0000-4000-8000-000000000001','Empresa A','empresa a'),('40000000-0000-4000-8000-000000000042','40000000-0000-4000-8000-000000000002','Empresa B','empresa b');
+insert into public.crm_contacts(id,organization_id,company_id,full_name) values('40000000-0000-4000-8000-000000000051','40000000-0000-4000-8000-000000000001','40000000-0000-4000-8000-000000000041','Contato A'),('40000000-0000-4000-8000-000000000052','40000000-0000-4000-8000-000000000002','40000000-0000-4000-8000-000000000042','Contato B');
+insert into public.leads(id,organization_id,full_name,email,service_interest,message,source,landing_path,status,consent_version,company_id,contact_id) values('40000000-0000-4000-8000-000000000061','40000000-0000-4000-8000-000000000001','Lead A','lead-a@example.invalid','other','Contexto sintetico suficientemente longo.','outbound','/crm/manual','new','manual','40000000-0000-4000-8000-000000000041','40000000-0000-4000-8000-000000000051'),('40000000-0000-4000-8000-000000000062','40000000-0000-4000-8000-000000000002','Lead B','lead-b@example.invalid','other','Contexto sintetico suficientemente longo.','outbound','/crm/manual','new','manual','40000000-0000-4000-8000-000000000042','40000000-0000-4000-8000-000000000052');
+
+set local role authenticated;
+select set_config('request.jwt.claims','{"sub":"40000000-0000-4000-8000-000000000011","role":"authenticated","aal":"aal1"}',true);
+select is((select count(*)::integer from public.crm_tasks),0,'AAL1 reads no tasks');
+select throws_ok($$select public.create_crm_task('Retornar','Descricao',now()+'1 day','40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000061')$$,'P0001','CRM operation not permitted.','AAL1 cannot write');
+select set_config('request.jwt.claims','{"sub":"40000000-0000-4000-8000-000000000013","role":"authenticated","aal":"aal2"}',true); select is((select count(*)::integer from public.crm_tasks),0,'invited reads no tasks');
+select set_config('request.jwt.claims','{"sub":"40000000-0000-4000-8000-000000000014","role":"authenticated","aal":"aal2"}',true); select is((select count(*)::integer from public.crm_activities),0,'suspended reads no activities');
+select set_config('request.jwt.claims','{"sub":"40000000-0000-4000-8000-000000000012","role":"authenticated","aal":"aal2"}',true); select throws_ok($$select public.create_crm_task('Retornar','Descricao',now()+'1 day','40000000-0000-4000-8000-000000000022','40000000-0000-4000-8000-000000000061')$$,'P0001','CRM operation not permitted.','crm.read cannot write');
+select set_config('request.jwt.claims','{"sub":"40000000-0000-4000-8000-000000000011","role":"authenticated","aal":"aal2"}',true);
+select throws_ok($$select public.create_crm_activity('call','Contato','Descricao',now(),'40000000-0000-4000-8000-000000000021')$$,'23514','CRM activity requires a lead or opportunity.','orphan activity rejected');
+select lives_ok($$select public.create_crm_activity('call','Ligacao realizada','Resumo sintetico',now(),'40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000061',null,'40000000-0000-4000-8000-000000000041','40000000-0000-4000-8000-000000000051')$$,'valid activity works');
+select is((select count(*)::integer from public.crm_activities),1,'one activity persisted');
+select throws_ok($$select public.create_crm_activity('call','Cruzada','Resumo',now(),'40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000062')$$,'23503','CRM lead is not available.','cross tenant lead rejected');
+select throws_ok($$select public.create_crm_task('Cruzada','Resumo',now()+'1 day','40000000-0000-4000-8000-000000000025','40000000-0000-4000-8000-000000000061')$$,'23514','CRM assignee must be an active member.','cross tenant assignee rejected');
+select throws_ok($$select public.create_crm_task('Empresa cruzada','Resumo',now()+'1 day','40000000-0000-4000-8000-000000000021',null,null,'40000000-0000-4000-8000-000000000042')$$,'23503','CRM company is not available.','cross tenant company rejected');
+select throws_ok($$select public.create_crm_task('Contato cruzado','Resumo',now()+'1 day','40000000-0000-4000-8000-000000000021',null,null,null,'40000000-0000-4000-8000-000000000052')$$,'23503','CRM contact is not available.','cross tenant contact rejected');
+select lives_ok($$select public.create_crm_task('Retornar contato','Resumo sintetico',now()+'1 day','40000000-0000-4000-8000-000000000021','40000000-0000-4000-8000-000000000061')$$,'valid task works');
+select is((select status from public.crm_tasks),'pending'::public.crm_task_status,'task starts pending');
+select is((select count(*)::integer from public.crm_tasks where status='pending' and lead_id is not null),1,'pending task derives next action');
+select lives_ok($$select public.transition_crm_task((select id from public.crm_tasks),1,'completed')$$,'task completes');
+select ok((select completed_at is not null and completed_by='40000000-0000-4000-8000-000000000011' from public.crm_tasks),'completion records time and user');
+select is((select count(*)::integer from public.crm_tasks where status='pending'),0,'completed task is no next action');
+select lives_ok($$select public.transition_crm_task((select id from public.crm_tasks),2,'pending')$$,'task reopens');
+select lives_ok($$select public.transition_crm_task((select id from public.crm_tasks),3,'cancelled')$$,'task cancels');
+select ok((select cancelled_at is not null and completed_at is null from public.crm_tasks),'cancellation is coherent');
+select is((select count(*)::integer from public.crm_tasks where status='pending'),0,'cancelled task is no next action');
+select throws_ok($$delete from public.crm_tasks$$,'42501',null,'hard delete denied');
+reset role;
+select is((select count(*)::integer from public.audit_logs where action in('crm.activity.created','crm.task.created','crm.task.completed','crm.task.reopened','crm.task.cancelled')),5,'sanitized audit events created');
+select ok(not exists(select 1 from public.audit_logs where action like 'crm.%' and metadata::text ~* 'email|phone|description|title'),'audit metadata has no PII or content');
+select ok(not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in('public','private') and p.prosecdef and not ('search_path=""'=any(coalesce(p.proconfig,array[]::text[])))),'security definer search path safe');
+select * from finish(); rollback;

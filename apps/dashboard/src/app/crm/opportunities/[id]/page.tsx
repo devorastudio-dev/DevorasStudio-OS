@@ -14,6 +14,7 @@ import {
 } from "../../../../lib/crm/pipeline";
 import { createClient } from "../../../../lib/supabase/server";
 import { PipelineSubmit } from "../../_components/pipeline-submit";
+import { ActivityTaskPanel } from "../../_components/activity-task-panel";
 
 export default async function OpportunityDetail({
   params,
@@ -58,6 +59,22 @@ export default async function OpportunityDetail({
     .eq("organization_id", access.organization.id)
     .eq("opportunity_id", id)
     .order("created_at", { ascending: false });
+  const [{ data: activities }, { data: tasks }] = await Promise.all([
+    supabase
+      .from("crm_activities")
+      .select("id,activity_type,title,description,occurred_at")
+      .eq("organization_id", access.organization.id)
+      .eq("opportunity_id", id)
+      .order("occurred_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("crm_tasks")
+      .select("id,title,due_at,status,version")
+      .eq("organization_id", access.organization.id)
+      .eq("opportunity_id", id)
+      .order("due_at")
+      .limit(20),
+  ]);
   const stageMap = new Map(
     (stages ?? []).map((stage) => [stage.id, stage.name]),
   );
@@ -244,6 +261,22 @@ export default async function OpportunityDetail({
           <p>Nenhuma movimentação registrada.</p>
         )}
       </Card>
+      <ActivityTaskPanel
+        canWrite={canWrite}
+        returnTo={`/crm/opportunities/${id}`}
+        members={(members ?? []).map((member) => ({
+          id: member.id,
+          label: `Membro ${member.user_id.slice(0, 8)}`,
+        }))}
+        link={{
+          opportunityId: id,
+          leadId: opportunity.lead_id,
+          companyId: opportunity.company_id,
+          contactId: opportunity.contact_id,
+        }}
+        activities={activities ?? []}
+        tasks={tasks ?? []}
+      />
     </>
   );
 }

@@ -22,6 +22,7 @@ export default async function CrmLayout({
           <Link href="/crm">Visão geral</Link>
           <Link href="/crm/leads">Leads</Link>
           <Link href="/crm/pipeline">Pipeline</Link>
+          <Link href="/crm/tasks">Tarefas</Link>
           <Link href="/crm/companies">Empresas</Link>
           <Link href="/crm/contacts">Contatos</Link>
         </nav>

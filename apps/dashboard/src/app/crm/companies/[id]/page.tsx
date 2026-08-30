@@ -6,6 +6,7 @@ import { hasPermission } from "../../../../lib/auth/permissions";
 import { createClient } from "../../../../lib/supabase/server";
 import { updateCompany } from "../../../../lib/crm/actions";
 import { CompanyForm } from "../../_components/forms";
+import { ActivityTaskPanel } from "../../_components/activity-task-panel";
 export default async function CompanyDetail({
   params,
   searchParams,
@@ -17,28 +18,44 @@ export default async function CompanyDetail({
   const canWrite = await hasPermission("crm.write", access.organization.id);
   const { id } = await params;
   const supabase = await createClient();
-  const [{ data: company }, { data: contacts }, { data: leads }] =
-    await Promise.all([
-      supabase
-        .from("crm_companies")
-        .select("*")
-        .eq("organization_id", access.organization.id)
-        .eq("id", id)
-        .maybeSingle(),
-      supabase
-        .from("crm_contacts")
-        .select("id,full_name,state")
-        .eq("organization_id", access.organization.id)
-        .eq("company_id", id)
-        .limit(20),
-      supabase
-        .from("leads")
-        .select("id,full_name,triage_status")
-        .eq("organization_id", access.organization.id)
-        .eq("company_id", id)
-        .limit(20),
-    ]);
+  const [
+    { data: company },
+    { data: contacts },
+    { data: members },
+    { data: leads },
+  ] = await Promise.all([
+    supabase
+      .from("crm_companies")
+      .select("*")
+      .eq("organization_id", access.organization.id)
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("crm_contacts")
+      .select("id,full_name,state")
+      .eq("organization_id", access.organization.id)
+      .eq("company_id", id)
+      .limit(20),
+    supabase
+      .from("organization_members")
+      .select("id,user_id")
+      .eq("organization_id", access.organization.id)
+      .eq("status", "active"),
+    supabase
+      .from("leads")
+      .select("id,full_name,triage_status")
+      .eq("organization_id", access.organization.id)
+      .eq("company_id", id)
+      .limit(20),
+  ]);
   if (!company) notFound();
+  const { data: tasks } = await supabase
+    .from("crm_tasks")
+    .select("id,title,due_at,status,version")
+    .eq("organization_id", access.organization.id)
+    .eq("company_id", company.id)
+    .order("due_at")
+    .limit(20);
   const { count: possibleDuplicates } = await supabase
     .from("crm_companies")
     .select("id", { count: "exact", head: true })
@@ -109,6 +126,17 @@ export default async function CompanyDetail({
           </Card>
         </div>
       </div>
+      <ActivityTaskPanel
+        canWrite={canWrite}
+        returnTo={`/crm/companies/${company.id}`}
+        members={(members ?? []).map((v) => ({
+          id: v.id,
+          label: `Membro ${v.user_id.slice(0, 8)}`,
+        }))}
+        link={{ companyId: company.id }}
+        activities={[]}
+        tasks={tasks ?? []}
+      />
     </>
   );
 }

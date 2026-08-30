@@ -9,6 +9,7 @@ import { LeadUpdateForm } from "../../_components/forms";
 import { sourceLabels } from "../../../../lib/crm/constants";
 import { createOpportunityFromLead } from "../../../../lib/crm/pipeline-actions";
 import { PipelineSubmit } from "../../_components/pipeline-submit";
+import { ActivityTaskPanel } from "../../_components/activity-task-panel";
 export default async function LeadDetail({
   params,
   searchParams,
@@ -61,6 +62,22 @@ export default async function LeadDetail({
     .eq("organization_id", access.organization.id)
     .eq("lead_id", lead.id)
     .maybeSingle();
+  const [{ data: activities }, { data: tasks }] = await Promise.all([
+    supabase
+      .from("crm_activities")
+      .select("id,activity_type,title,description,occurred_at")
+      .eq("organization_id", access.organization.id)
+      .eq("lead_id", lead.id)
+      .order("occurred_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("crm_tasks")
+      .select("id,title,due_at,status,version")
+      .eq("organization_id", access.organization.id)
+      .eq("lead_id", lead.id)
+      .order("due_at")
+      .limit(20),
+  ]);
   const query = await searchParams;
   return (
     <>
@@ -167,6 +184,21 @@ export default async function LeadDetail({
           )}
         </Card>
       ) : null}
+      <ActivityTaskPanel
+        canWrite={canWrite}
+        returnTo={`/crm/leads/${lead.id}`}
+        members={(members ?? []).map((member) => ({
+          id: member.id,
+          label: `Membro ${member.user_id.slice(0, 8)}`,
+        }))}
+        link={{
+          leadId: lead.id,
+          companyId: lead.company_id,
+          contactId: lead.contact_id,
+        }}
+        activities={activities ?? []}
+        tasks={tasks ?? []}
+      />
     </>
   );
 }
