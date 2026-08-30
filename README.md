@@ -179,6 +179,12 @@ No projeto remoto:
 
 O menu do painel pode mudar; confirme os nomes na documentação oficial. Nenhuma configuração remota é automatizada por este repositório.
 
+## Landing e captação de leads
+
+O workspace `apps/marketing` publica a landing, a política em `/privacy` e o formulário de contato. Configure `apps/marketing/.env.local` a partir do exemplo próprio. O envio ocorre somente no servidor pela RPC restrita; a chave administrativa nunca é usada.
+
+Migração, permissões, controles contra repetição, operação e pendências estão no [guia de captação de leads](docs/lead-capture.md). Antes do deployment, confirme a organização `devora-studio`, aplique a migração pelo fluxo autorizado e configure `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` no projeto Vercel do marketing.
+
 ## CI
 
 Em pushes e pull requests para `main`, `.github/workflows/ci.yml` usa Node 24, `npm ci` e cache npm; verifica formatação, lint, tipos, Supabase local, reset, DB lint, pgTAP, Vitest e build. Qualquer falha interrompe o job.
