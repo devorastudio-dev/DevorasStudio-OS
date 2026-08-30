@@ -13,6 +13,7 @@ export default async function DashboardHome() {
     "roles.read",
     access.organization.id,
   );
+  const canReadCrm = await hasPermission("crm.read", access.organization.id);
 
   return (
     <main className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
@@ -41,6 +42,11 @@ export default async function DashboardHome() {
         {canReadRoles ? (
           <Link className="text-sm underline" href="/admin/members">
             Membros e papéis
+          </Link>
+        ) : null}
+        {canReadCrm ? (
+          <Link className="text-sm underline" href="/crm">
+            Abrir CRM
           </Link>
         ) : null}
       </Card>

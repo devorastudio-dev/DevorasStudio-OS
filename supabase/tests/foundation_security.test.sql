@@ -2,8 +2,8 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(33);
 
-select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'),9,'nove tabelas publicas da Fundacao e captacao');
-select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and c.relrowsecurity),9,'todas as tabelas publicas possuem RLS');
+select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'),11,'onze tabelas publicas da Fundacao, captacao e CRM');
+select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and c.relrowsecurity),11,'todas as tabelas publicas possuem RLS');
 select is((select count(*)::integer from pg_policies where schemaname='public' and (qual='true' or with_check='true')),0,'nenhuma politica ampla inesperada');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname in ('public','private') and c.relkind in ('v','m','S')),0,'nenhuma view materializada ou sequence de aplicacao');
 select is((select count(*)::integer from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','private') and p.prosecdef and not ('search_path=""'=any(coalesce(p.proconfig,array[]::text[])))),0,'security definer usa search_path vazio');

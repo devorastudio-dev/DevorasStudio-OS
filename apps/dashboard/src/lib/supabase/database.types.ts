@@ -7,11 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
   public: {
     Tables: {
       audit_logs: {
@@ -68,74 +63,285 @@ export type Database = {
           },
         ];
       };
+      crm_companies: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          display_name: string;
+          email: string | null;
+          id: string;
+          normalized_name: string;
+          notes: string | null;
+          organization_id: string;
+          phone: string | null;
+          source: Database["public"]["Enums"]["crm_source"] | null;
+          source_detail: string | null;
+          state: Database["public"]["Enums"]["crm_record_state"];
+          updated_at: string;
+          updated_by: string | null;
+          website: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          display_name: string;
+          email?: string | null;
+          id?: string;
+          normalized_name: string;
+          notes?: string | null;
+          organization_id: string;
+          phone?: string | null;
+          source?: Database["public"]["Enums"]["crm_source"] | null;
+          source_detail?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          display_name?: string;
+          email?: string | null;
+          id?: string;
+          normalized_name?: string;
+          notes?: string | null;
+          organization_id?: string;
+          phone?: string | null;
+          source?: Database["public"]["Enums"]["crm_source"] | null;
+          source_detail?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "crm_companies_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_companies_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_companies_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      crm_contacts: {
+        Row: {
+          company_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          email: string | null;
+          full_name: string;
+          id: string;
+          is_primary: boolean;
+          job_title: string | null;
+          organization_id: string;
+          phone: string | null;
+          state: Database["public"]["Enums"]["crm_record_state"];
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          company_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          full_name: string;
+          id?: string;
+          is_primary?: boolean;
+          job_title?: string | null;
+          organization_id: string;
+          phone?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          company_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          email?: string | null;
+          full_name?: string;
+          id?: string;
+          is_primary?: boolean;
+          job_title?: string | null;
+          organization_id?: string;
+          phone?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "crm_contacts_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "crm_contacts_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_contacts_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "crm_contacts_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       leads: {
         Row: {
+          archived_at: string | null;
+          assigned_membership_id: string | null;
           company: string | null;
+          company_id: string | null;
           consent_version: string;
-          consented_at: string;
+          consented_at: string | null;
+          contact_id: string | null;
           created_at: string;
+          disqualification_reason: string | null;
           email: string;
           full_name: string;
           id: string;
+          internal_updated_at: string;
+          internal_updated_by: string | null;
           landing_path: string;
           message: string;
           organization_id: string;
           phone: string | null;
           service_interest: string;
           source: string;
+          source_detail: string | null;
           status: string;
-          submission_fingerprint: string;
+          submission_fingerprint: string | null;
+          triage_status: Database["public"]["Enums"]["crm_lead_triage_status"];
           utm_campaign: string | null;
           utm_content: string | null;
           utm_medium: string | null;
           utm_source: string | null;
           utm_term: string | null;
+          version: number;
         };
         Insert: {
+          archived_at?: string | null;
+          assigned_membership_id?: string | null;
           company?: string | null;
+          company_id?: string | null;
           consent_version?: string;
-          consented_at?: string;
+          consented_at?: string | null;
+          contact_id?: string | null;
           created_at?: string;
+          disqualification_reason?: string | null;
           email: string;
           full_name: string;
           id?: string;
+          internal_updated_at?: string;
+          internal_updated_by?: string | null;
           landing_path?: string;
           message: string;
           organization_id: string;
           phone?: string | null;
           service_interest: string;
           source?: string;
+          source_detail?: string | null;
           status?: string;
-          submission_fingerprint: string;
+          submission_fingerprint?: string | null;
+          triage_status?: Database["public"]["Enums"]["crm_lead_triage_status"];
           utm_campaign?: string | null;
           utm_content?: string | null;
           utm_medium?: string | null;
           utm_source?: string | null;
           utm_term?: string | null;
+          version?: number;
         };
         Update: {
+          archived_at?: string | null;
+          assigned_membership_id?: string | null;
           company?: string | null;
+          company_id?: string | null;
           consent_version?: string;
-          consented_at?: string;
+          consented_at?: string | null;
+          contact_id?: string | null;
           created_at?: string;
+          disqualification_reason?: string | null;
           email?: string;
           full_name?: string;
           id?: string;
+          internal_updated_at?: string;
+          internal_updated_by?: string | null;
           landing_path?: string;
           message?: string;
           organization_id?: string;
           phone?: string | null;
           service_interest?: string;
           source?: string;
+          source_detail?: string | null;
           status?: string;
-          submission_fingerprint?: string;
+          submission_fingerprint?: string | null;
+          triage_status?: Database["public"]["Enums"]["crm_lead_triage_status"];
           utm_campaign?: string | null;
           utm_content?: string | null;
           utm_medium?: string | null;
           utm_source?: string | null;
           utm_term?: string | null;
+          version?: number;
         };
         Relationships: [
+          {
+            foreignKeyName: "leads_assignee_fk";
+            columns: ["assigned_membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "leads_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "leads_contact_fk";
+            columns: ["contact_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_contacts";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "leads_internal_updated_by_fkey";
+            columns: ["internal_updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "leads_organization_id_fkey";
             columns: ["organization_id"];
@@ -439,6 +645,20 @@ export type Database = {
       };
     };
     Enums: {
+      crm_lead_triage_status:
+        "new" | "in_review" | "qualified" | "disqualified";
+      crm_record_state: "active" | "archived";
+      crm_source:
+        | "website"
+        | "99freelas"
+        | "instagram"
+        | "pinterest"
+        | "tiktok"
+        | "whatsapp"
+        | "google_maps"
+        | "referral"
+        | "outbound"
+        | "other";
       organization_member_status: "invited" | "active" | "suspended";
     };
     CompositeTypes: {
@@ -567,6 +787,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      crm_lead_triage_status: ["new", "in_review", "qualified", "disqualified"],
+      crm_record_state: ["active", "archived"],
+      crm_source: [
+        "website",
+        "99freelas",
+        "instagram",
+        "pinterest",
+        "tiktok",
+        "whatsapp",
+        "google_maps",
+        "referral",
+        "outbound",
+        "other",
+      ],
       organization_member_status: ["invited", "active", "suspended"],
     },
   },

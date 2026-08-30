@@ -1,0 +1,19 @@
+import { redirect } from "next/navigation";
+import { recordAuditEvent } from "../audit/record";
+import { requireDashboardAccess } from "../auth/access";
+import { hasPermission } from "../auth/permissions";
+
+export async function requireCrmAccess(
+  capability: "crm.read" | "crm.write" = "crm.read",
+) {
+  const access = await requireDashboardAccess();
+  if (!(await hasPermission(capability, access.organization.id))) {
+    await recordAuditEvent({
+      action: "auth.access.denied",
+      outcome: "denied",
+      metadata: { capability },
+    });
+    redirect("/");
+  }
+  return access;
+}

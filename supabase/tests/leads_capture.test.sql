@@ -43,7 +43,7 @@ select is((select count(*) from public.leads), 0::bigint, 'user without membersh
 select set_config('request.jwt.claims','{"sub":"10000000-0000-0000-0000-000000000011","role":"authenticated","aal":"aal2"}',true);
 select is((select count(*) from public.leads), 1::bigint, 'member with crm.read reads organization leads');
 select throws_ok($$ delete from public.leads $$, '42501', null, 'authenticated users cannot delete leads');
-select throws_ok($$ update public.leads set status = 'new' $$, '42501', null, 'authenticated users cannot update leads in C1');
+select lives_ok($$ update public.leads set triage_status = 'in_review' $$, 'crm.write gerencia triagem sem alterar a captura C1');
 
 select ok(not has_table_privilege('anon', 'public.leads', 'INSERT'), 'anon has no direct insert grant');
 
