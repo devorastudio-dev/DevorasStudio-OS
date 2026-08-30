@@ -7,6 +7,11 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       audit_logs: {
@@ -56,6 +61,83 @@ export type Database = {
           },
           {
             foreignKeyName: "audit_logs_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      leads: {
+        Row: {
+          company: string | null;
+          consent_version: string;
+          consented_at: string;
+          created_at: string;
+          email: string;
+          full_name: string;
+          id: string;
+          landing_path: string;
+          message: string;
+          organization_id: string;
+          phone: string | null;
+          service_interest: string;
+          source: string;
+          status: string;
+          submission_fingerprint: string;
+          utm_campaign: string | null;
+          utm_content: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
+          utm_term: string | null;
+        };
+        Insert: {
+          company?: string | null;
+          consent_version?: string;
+          consented_at?: string;
+          created_at?: string;
+          email: string;
+          full_name: string;
+          id?: string;
+          landing_path?: string;
+          message: string;
+          organization_id: string;
+          phone?: string | null;
+          service_interest: string;
+          source?: string;
+          status?: string;
+          submission_fingerprint: string;
+          utm_campaign?: string | null;
+          utm_content?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          utm_term?: string | null;
+        };
+        Update: {
+          company?: string | null;
+          consent_version?: string;
+          consented_at?: string;
+          created_at?: string;
+          email?: string;
+          full_name?: string;
+          id?: string;
+          landing_path?: string;
+          message?: string;
+          organization_id?: string;
+          phone?: string | null;
+          service_interest?: string;
+          source?: string;
+          status?: string;
+          submission_fingerprint?: string;
+          utm_campaign?: string | null;
+          utm_content?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          utm_term?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leads_organization_id_fkey";
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
@@ -337,6 +419,23 @@ export type Database = {
       remove_member_role: {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
+      };
+      submit_public_lead: {
+        Args: {
+          company: string;
+          email: string;
+          full_name: string;
+          landing_path?: string;
+          message: string;
+          phone: string;
+          service_interest: string;
+          utm_campaign?: string;
+          utm_content?: string;
+          utm_medium?: string;
+          utm_source?: string;
+          utm_term?: string;
+        };
+        Returns: boolean;
       };
     };
     Enums: {
