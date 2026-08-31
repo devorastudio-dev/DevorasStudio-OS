@@ -11,13 +11,14 @@ describe("catalogos do CRM", () => {
     expect(CRM_SOURCES).toContain("99freelas");
     expect(Object.keys(sourceLabels)).toHaveLength(CRM_SOURCES.length);
   });
-  it("limita triagem sem antecipar pipeline", () => {
+  it("mantém os estados de triagem e a conversão explícita", () => {
     expect(CRM_TRIAGE).toEqual([
       "new",
       "in_review",
       "qualified",
       "disqualified",
+      "converted",
     ]);
-    expect(Object.keys(triageLabels)).toHaveLength(4);
+    expect(Object.keys(triageLabels)).toHaveLength(CRM_TRIAGE.length);
   });
 });

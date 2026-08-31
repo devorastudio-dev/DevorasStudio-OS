@@ -15,6 +15,7 @@ export const CRM_TRIAGE = [
   "in_review",
   "qualified",
   "disqualified",
+  "converted",
 ] as const;
 
 export const sourceLabels: Record<(typeof CRM_SOURCES)[number], string> = {
@@ -34,4 +35,5 @@ export const triageLabels: Record<(typeof CRM_TRIAGE)[number], string> = {
   in_review: "Em triagem",
   qualified: "Qualificado",
   disqualified: "Desqualificado",
+  converted: "Convertido",
 };

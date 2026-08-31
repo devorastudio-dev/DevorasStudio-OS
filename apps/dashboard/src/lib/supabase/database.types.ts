@@ -9,6 +9,81 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      client_opportunities: {
+        Row: {
+          client_id: string;
+          organization_id: string;
+          opportunity_id: string;
+          linked_at: string;
+          linked_by: string;
+        };
+        Insert: {
+          client_id: string;
+          organization_id: string;
+          opportunity_id: string;
+          linked_at?: string;
+          linked_by: string;
+        };
+        Update: {
+          client_id?: string;
+          organization_id?: string;
+          opportunity_id?: string;
+          linked_at?: string;
+          linked_by?: string;
+        };
+        Relationships: [];
+      };
+      clients: {
+        Row: {
+          id: string;
+          organization_id: string;
+          company_id: string | null;
+          primary_contact_id: string | null;
+          source_lead_id: string | null;
+          source_opportunity_id: string;
+          assigned_membership_id: string | null;
+          state: Database["public"]["Enums"]["crm_record_state"];
+          converted_at: string;
+          created_by: string;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+          version: number;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          company_id?: string | null;
+          primary_contact_id?: string | null;
+          source_lead_id?: string | null;
+          source_opportunity_id: string;
+          assigned_membership_id?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          converted_at?: string;
+          created_by: string;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          company_id?: string | null;
+          primary_contact_id?: string | null;
+          source_lead_id?: string | null;
+          source_opportunity_id?: string;
+          assigned_membership_id?: string | null;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          converted_at?: string;
+          created_by?: string;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          version?: number;
+        };
+        Relationships: [];
+      };
       audit_logs: {
         Row: {
           action: string;
@@ -1078,6 +1153,25 @@ export type Database = {
         };
         Returns: string;
       };
+      convert_won_opportunity_to_client: {
+        Args: { target_opportunity_id: string };
+        Returns: string;
+      };
+      get_crm_dashboard: {
+        Args: { period_days?: number };
+        Returns: Json;
+      };
+      list_crm_clients: {
+        Args: {
+          search_text?: string;
+          client_state?: Database["public"]["Enums"]["crm_record_state"];
+          assigned_to?: string;
+          period_days?: number;
+          page_number?: number;
+          page_size?: number;
+        };
+        Returns: Json;
+      };
       get_my_membership_statuses: {
         Args: never;
         Returns: Database["public"]["Enums"]["organization_member_status"][];
@@ -1172,7 +1266,7 @@ export type Database = {
         | "note"
         | "other";
       crm_lead_triage_status:
-        "new" | "in_review" | "qualified" | "disqualified";
+        "new" | "in_review" | "qualified" | "disqualified" | "converted";
       crm_record_state: "active" | "archived";
       crm_source:
         | "website"

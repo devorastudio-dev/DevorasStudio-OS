@@ -15,6 +15,7 @@ import {
 import { createClient } from "../../../../lib/supabase/server";
 import { PipelineSubmit } from "../../_components/pipeline-submit";
 import { ActivityTaskPanel } from "../../_components/activity-task-panel";
+import { convertOpportunityToClient } from "../../../../lib/crm/client-actions";
 
 export default async function OpportunityDetail({
   params,
@@ -53,6 +54,12 @@ export default async function OpportunityDetail({
         .eq("status", "active"),
     ]);
   if (!opportunity) notFound();
+  const { data: clientRelation } = await supabase
+    .from("client_opportunities")
+    .select("client_id")
+    .eq("organization_id", access.organization.id)
+    .eq("opportunity_id", id)
+    .maybeSingle();
   const { data: history } = await supabase
     .from("opportunity_stage_history")
     .select("id,previous_stage_id,new_stage_id,changed_by,context,created_at")
@@ -77,6 +84,9 @@ export default async function OpportunityDetail({
   ]);
   const stageMap = new Map(
     (stages ?? []).map((stage) => [stage.id, stage.name]),
+  );
+  const currentStage = (stages ?? []).find(
+    (stage) => stage.id === opportunity.stage_id,
   );
   const query = await searchParams;
   return (
@@ -128,6 +138,33 @@ export default async function OpportunityDetail({
               )}
             </dd>
           </dl>
+        </Card>
+        <Card>
+          <h2>Conversão em cliente</h2>
+          {clientRelation ? (
+            <>
+              <p>Esta oportunidade já está vinculada a um cliente.</p>
+              <Link href={`/crm/clients/${clientRelation.client_id}`}>
+                Abrir cliente
+              </Link>
+            </>
+          ) : currentStage?.category === "won" ? (
+            canWrite ? (
+              <form action={convertOpportunityToClient}>
+                <input type="hidden" name="opportunityId" value={id} />
+                <p>
+                  Confirme explicitamente a criação ou o vínculo do cliente.
+                </p>
+                <button type="submit">Converter em cliente</button>
+              </form>
+            ) : (
+              <Alert variant="warning">
+                Seu acesso permite consultar, mas não converter clientes.
+              </Alert>
+            )
+          ) : (
+            <p>A conversão fica disponível somente após marcar como ganha.</p>
+          )}
         </Card>
         {canWrite ? (
           <Card>
