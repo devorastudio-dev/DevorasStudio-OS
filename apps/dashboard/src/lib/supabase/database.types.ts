@@ -1113,6 +1113,165 @@ export type Database = {
         };
         Relationships: [];
       };
+      proposal_items: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          line_total: number | null;
+          name: string;
+          organization_id: string;
+          position: number;
+          proposal_id: string;
+          quantity: number;
+          service_id: string | null;
+          unit: Database["public"]["Enums"]["service_unit"];
+          unit_price: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          line_total?: number | null;
+          name: string;
+          organization_id: string;
+          position: number;
+          proposal_id: string;
+          quantity: number;
+          service_id?: string | null;
+          unit: Database["public"]["Enums"]["service_unit"];
+          unit_price: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          line_total?: number | null;
+          name?: string;
+          organization_id?: string;
+          position?: number;
+          proposal_id?: string;
+          quantity?: number;
+          service_id?: string | null;
+          unit?: Database["public"]["Enums"]["service_unit"];
+          unit_price?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_items_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_items_service_fk";
+            columns: ["service_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposals: {
+        Row: {
+          client_id: string;
+          created_at: string;
+          created_by: string;
+          currency: string;
+          discount_amount: number;
+          id: string;
+          opportunity_id: string | null;
+          organization_id: string;
+          proposal_number: string;
+          status: Database["public"]["Enums"]["proposal_status"];
+          subtotal: number;
+          title: string;
+          total_amount: number;
+          updated_at: string;
+          updated_by: string | null;
+          valid_until: string | null;
+          version: number;
+        };
+        Insert: {
+          client_id: string;
+          created_at?: string;
+          created_by: string;
+          currency?: string;
+          discount_amount?: number;
+          id?: string;
+          opportunity_id?: string | null;
+          organization_id: string;
+          proposal_number: string;
+          status?: Database["public"]["Enums"]["proposal_status"];
+          subtotal?: number;
+          title: string;
+          total_amount?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          valid_until?: string | null;
+          version?: number;
+        };
+        Update: {
+          client_id?: string;
+          created_at?: string;
+          created_by?: string;
+          currency?: string;
+          discount_amount?: number;
+          id?: string;
+          opportunity_id?: string | null;
+          organization_id?: string;
+          proposal_number?: string;
+          status?: Database["public"]["Enums"]["proposal_status"];
+          subtotal?: number;
+          title?: string;
+          total_amount?: number;
+          updated_at?: string;
+          updated_by?: string | null;
+          valid_until?: string | null;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposals_client_fk";
+            columns: ["client_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposals_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposals_opportunity_fk";
+            columns: ["opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposals_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposals_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       role_permissions: {
         Row: {
           created_at: string;
@@ -1187,6 +1346,70 @@ export type Database = {
           },
         ];
       };
+      services: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          default_price: number;
+          default_unit: Database["public"]["Enums"]["service_unit"];
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          default_price?: number;
+          default_unit: Database["public"]["Enums"]["service_unit"];
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          organization_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          default_price?: number;
+          default_unit?: Database["public"]["Enums"]["service_unit"];
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          organization_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "services_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "services_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "services_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1236,6 +1459,24 @@ export type Database = {
         };
         Returns: string;
       };
+      create_proposal: {
+        Args: {
+          proposal_title?: string;
+          proposal_valid_until?: string;
+          target_client_id: string;
+          target_opportunity_id?: string;
+        };
+        Returns: string;
+      };
+      create_service: {
+        Args: {
+          service_description: string;
+          service_name: string;
+          service_price: number;
+          service_unit: Database["public"]["Enums"]["service_unit"];
+        };
+        Returns: string;
+      };
       get_crm_dashboard: { Args: { period_days?: number }; Returns: Json };
       get_my_membership_statuses: {
         Args: never;
@@ -1270,6 +1511,10 @@ export type Database = {
         };
         Returns: number;
       };
+      move_proposal_item: {
+        Args: { direction: number; target_item_id: string };
+        Returns: undefined;
+      };
       record_administrative_audit: {
         Args: {
           event_action: string;
@@ -1294,6 +1539,23 @@ export type Database = {
       remove_member_role: {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
+      };
+      remove_proposal_item: {
+        Args: { target_item_id: string };
+        Returns: undefined;
+      };
+      save_proposal_item: {
+        Args: {
+          item_description?: string;
+          item_name?: string;
+          item_quantity?: number;
+          item_unit?: Database["public"]["Enums"]["service_unit"];
+          item_unit_price?: number;
+          target_item_id?: string;
+          target_proposal_id: string;
+          target_service_id?: string;
+        };
+        Returns: string;
       };
       submit_public_lead: {
         Args: {
@@ -1331,6 +1593,26 @@ export type Database = {
         };
         Returns: number;
       };
+      update_proposal: {
+        Args: {
+          proposal_discount?: number;
+          proposal_title?: string;
+          proposal_valid_until?: string;
+          target_proposal_id: string;
+        };
+        Returns: undefined;
+      };
+      update_service: {
+        Args: {
+          service_description: string;
+          service_name: string;
+          service_price: number;
+          service_unit: Database["public"]["Enums"]["service_unit"];
+          target_active: boolean;
+          target_service_id: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       crm_activity_type:
@@ -1366,6 +1648,8 @@ export type Database = {
         | "other";
       organization_member_status: "invited" | "active" | "suspended";
       pipeline_stage_category: "open" | "won" | "lost";
+      proposal_status: "draft";
+      service_unit: "project" | "hour" | "month" | "unit" | "custom";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1534,6 +1818,8 @@ export const Constants = {
       ],
       organization_member_status: ["invited", "active", "suspended"],
       pipeline_stage_category: ["open", "won", "lost"],
+      proposal_status: ["draft"],
+      service_unit: ["project", "hour", "month", "unit", "custom"],
     },
   },
 } as const;

@@ -147,6 +147,12 @@ export default async function OpportunityDetail({
               <Link href={`/crm/clients/${clientRelation.client_id}`}>
                 Abrir cliente
               </Link>
+              {" · "}
+              <Link
+                href={`/proposals/new?client=${clientRelation.client_id}&opportunity=${id}`}
+              >
+                Criar proposta
+              </Link>
             </>
           ) : currentStage?.category === "won" ? (
             canWrite ? (

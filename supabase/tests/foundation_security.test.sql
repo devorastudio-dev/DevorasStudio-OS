@@ -3,7 +3,7 @@ create extension if not exists pgtap with schema extensions;
 select plan(33);
 
 select is((select count(*)::integer from unnest(array[
-  'organizations','profiles','organization_members','permissions','roles','role_permissions','organization_member_roles','audit_logs','leads','crm_companies','crm_contacts','pipeline_stages','opportunities','opportunity_stage_history','crm_activities','crm_tasks','clients','client_opportunities'
+  'organizations','profiles','organization_members','permissions','roles','role_permissions','organization_member_roles','audit_logs','leads','crm_companies','crm_contacts','pipeline_stages','opportunities','opportunity_stage_history','crm_activities','crm_tasks','clients','client_opportunities','services','proposals','proposal_items'
 ]) expected(table_name) where to_regclass('public.' || expected.table_name) is null),0,'todas as tabelas publicas esperadas existem');
 select is((select count(*)::integer from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and not c.relrowsecurity),0,'todas as tabelas publicas possuem RLS');
 select is((select count(*)::integer from pg_policies where schemaname='public' and (qual='true' or with_check='true')),0,'nenhuma politica ampla inesperada');

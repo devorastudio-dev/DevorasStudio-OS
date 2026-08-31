@@ -19,10 +19,10 @@ insert into public.organization_members (id,organization_id,user_id,status) valu
 ('00000000-0000-4000-8000-000000000525','00000000-0000-4000-8000-000000000502','00000000-0000-4000-8000-000000000515','active');
 
 select is((select count(*)::integer from public.roles where organization_id='00000000-0000-4000-8000-000000000501'),4,'quatro papeis de sistema por organizacao');
-select is((select count(*)::integer from public.permissions),21,'catalogo explicito possui 21 permissoes');
-select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='administrador'),21,'administrador recebe catalogo completo');
-select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='socio'),17,'socio recebe matriz esperada');
-select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='colaborador'),11,'colaborador recebe matriz minima');
+select is((select count(*)::integer from public.permissions),22,'catalogo explicito possui 22 permissoes');
+select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='administrador'),22,'administrador recebe catalogo completo');
+select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='socio'),18,'socio recebe matriz esperada');
+select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='colaborador'),12,'colaborador recebe matriz minima');
 select is((select count(*)::integer from public.role_permissions rp join public.roles r on r.id=rp.role_id where r.organization_id='00000000-0000-4000-8000-000000000501' and r.slug='financeiro'),4,'financeiro recebe matriz financeira');
 
 insert into public.organization_member_roles (organization_id,membership_id,role_id)
