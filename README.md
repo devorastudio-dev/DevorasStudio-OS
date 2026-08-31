@@ -199,6 +199,10 @@ Interações realizadas são atividades; ações futuras são tarefas com prazo 
 
 O detalhe de uma oportunidade ganha permite conversão explícita e idempotente em cliente. `/crm/clients` mantém a base convertida, enquanto `/crm` consolida pipeline, conversão, tarefas e ausência de próxima ação diretamente no banco. Consulte [Conversão em cliente e dashboard comercial](docs/crm-clients-dashboard.md).
 
+## Propostas
+
+O módulo `/proposals` mantém catálogo de serviços, rascunhos e itens estruturados com snapshots comerciais, numeração humana concorrente e totais calculados no PostgreSQL. A D1 não produz PDF, envio ou aceite. Consulte [Fundação de propostas](docs/proposals-foundation.md).
+
 ## CI
 
 Em pushes e pull requests para `main`, `.github/workflows/ci.yml` usa Node 24, `npm ci` e cache npm; verifica formatação, lint, tipos, Supabase local, reset, DB lint, pgTAP, Vitest e build. Qualquer falha interrompe o job.
@@ -288,6 +292,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 - [Pipeline comercial e oportunidades](docs/crm-pipeline.md)
 - [Atividades, tarefas e próxima ação](docs/crm-activities-tasks.md)
 - [Conversão em cliente e dashboard comercial](docs/crm-clients-dashboard.md)
+- [Fundação de propostas](docs/proposals-foundation.md)
 - [Matriz consolidada de RLS](docs/rls-security.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)
