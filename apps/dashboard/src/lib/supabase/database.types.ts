@@ -9,81 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      client_opportunities: {
-        Row: {
-          client_id: string;
-          organization_id: string;
-          opportunity_id: string;
-          linked_at: string;
-          linked_by: string;
-        };
-        Insert: {
-          client_id: string;
-          organization_id: string;
-          opportunity_id: string;
-          linked_at?: string;
-          linked_by: string;
-        };
-        Update: {
-          client_id?: string;
-          organization_id?: string;
-          opportunity_id?: string;
-          linked_at?: string;
-          linked_by?: string;
-        };
-        Relationships: [];
-      };
-      clients: {
-        Row: {
-          id: string;
-          organization_id: string;
-          company_id: string | null;
-          primary_contact_id: string | null;
-          source_lead_id: string | null;
-          source_opportunity_id: string;
-          assigned_membership_id: string | null;
-          state: Database["public"]["Enums"]["crm_record_state"];
-          converted_at: string;
-          created_by: string;
-          updated_by: string | null;
-          created_at: string;
-          updated_at: string;
-          version: number;
-        };
-        Insert: {
-          id?: string;
-          organization_id: string;
-          company_id?: string | null;
-          primary_contact_id?: string | null;
-          source_lead_id?: string | null;
-          source_opportunity_id: string;
-          assigned_membership_id?: string | null;
-          state?: Database["public"]["Enums"]["crm_record_state"];
-          converted_at?: string;
-          created_by: string;
-          updated_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-          version?: number;
-        };
-        Update: {
-          id?: string;
-          organization_id?: string;
-          company_id?: string | null;
-          primary_contact_id?: string | null;
-          source_lead_id?: string | null;
-          source_opportunity_id?: string;
-          assigned_membership_id?: string | null;
-          state?: Database["public"]["Enums"]["crm_record_state"];
-          converted_at?: string;
-          created_by?: string;
-          updated_by?: string | null;
-          created_at?: string;
-          updated_at?: string;
-          version?: number;
-        };
-        Relationships: [];
-      };
       audit_logs: {
         Row: {
           action: string;
@@ -134,6 +59,160 @@ export type Database = {
             columns: ["organization_id"];
             isOneToOne: false;
             referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      client_opportunities: {
+        Row: {
+          client_id: string;
+          linked_at: string;
+          linked_by: string;
+          opportunity_id: string;
+          organization_id: string;
+        };
+        Insert: {
+          client_id: string;
+          linked_at?: string;
+          linked_by: string;
+          opportunity_id: string;
+          organization_id: string;
+        };
+        Update: {
+          client_id?: string;
+          linked_at?: string;
+          linked_by?: string;
+          opportunity_id?: string;
+          organization_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "client_opportunities_client_fk";
+            columns: ["client_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "client_opportunities_linked_by_fkey";
+            columns: ["linked_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "client_opportunities_opportunity_fk";
+            columns: ["opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      clients: {
+        Row: {
+          assigned_membership_id: string | null;
+          company_id: string | null;
+          converted_at: string;
+          created_at: string;
+          created_by: string;
+          id: string;
+          organization_id: string;
+          primary_contact_id: string | null;
+          source_lead_id: string | null;
+          source_opportunity_id: string;
+          state: Database["public"]["Enums"]["crm_record_state"];
+          updated_at: string;
+          updated_by: string | null;
+          version: number;
+        };
+        Insert: {
+          assigned_membership_id?: string | null;
+          company_id?: string | null;
+          converted_at?: string;
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          organization_id: string;
+          primary_contact_id?: string | null;
+          source_lead_id?: string | null;
+          source_opportunity_id: string;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Update: {
+          assigned_membership_id?: string | null;
+          company_id?: string | null;
+          converted_at?: string;
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          organization_id?: string;
+          primary_contact_id?: string | null;
+          source_lead_id?: string | null;
+          source_opportunity_id?: string;
+          state?: Database["public"]["Enums"]["crm_record_state"];
+          updated_at?: string;
+          updated_by?: string | null;
+          version?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clients_assignee_fk";
+            columns: ["assigned_membership_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organization_members";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "clients_company_fk";
+            columns: ["company_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_companies";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "clients_contact_fk";
+            columns: ["primary_contact_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "crm_contacts";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "clients_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "clients_lead_fk";
+            columns: ["source_lead_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "leads";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "clients_opportunity_fk";
+            columns: ["source_opportunity_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "opportunities";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "clients_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "clients_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1118,6 +1197,10 @@ export type Database = {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
       };
+      convert_won_opportunity_to_client: {
+        Args: { target_opportunity_id: string };
+        Returns: string;
+      };
       create_crm_activity: {
         Args: {
           activity_description: string;
@@ -1153,25 +1236,7 @@ export type Database = {
         };
         Returns: string;
       };
-      convert_won_opportunity_to_client: {
-        Args: { target_opportunity_id: string };
-        Returns: string;
-      };
-      get_crm_dashboard: {
-        Args: { period_days?: number };
-        Returns: Json;
-      };
-      list_crm_clients: {
-        Args: {
-          search_text?: string;
-          client_state?: Database["public"]["Enums"]["crm_record_state"];
-          assigned_to?: string;
-          period_days?: number;
-          page_number?: number;
-          page_size?: number;
-        };
-        Returns: Json;
-      };
+      get_crm_dashboard: { Args: { period_days?: number }; Returns: Json };
       get_my_membership_statuses: {
         Args: never;
         Returns: Database["public"]["Enums"]["organization_member_status"][];
@@ -1183,6 +1248,17 @@ export type Database = {
       has_role: {
         Args: { target_organization_id?: string; target_role_slug: string };
         Returns: boolean;
+      };
+      list_crm_clients: {
+        Args: {
+          assigned_to?: string;
+          client_state?: Database["public"]["Enums"]["crm_record_state"];
+          page_number?: number;
+          page_size?: number;
+          period_days?: number;
+          search_text?: string;
+        };
+        Returns: Json;
       };
       move_opportunity: {
         Args: {
@@ -1426,7 +1502,13 @@ export const Constants = {
         "note",
         "other",
       ],
-      crm_lead_triage_status: ["new", "in_review", "qualified", "disqualified"],
+      crm_lead_triage_status: [
+        "new",
+        "in_review",
+        "qualified",
+        "disqualified",
+        "converted",
+      ],
       crm_record_state: ["active", "archived"],
       crm_source: [
         "website",

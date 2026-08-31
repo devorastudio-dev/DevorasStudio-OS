@@ -46,7 +46,7 @@ create function public.convert_won_opportunity_to_client(target_opportunity_id u
 returns uuid language plpgsql security definer set search_path = '' as $$
 declare
   membership public.organization_members;
-  item public.opportunities;
+  item public.opportunities%rowtype;
   stage_category public.pipeline_stage_category;
   existing_client_id uuid;
   result_client_id uuid;
@@ -56,7 +56,7 @@ begin
     raise exception using errcode = 'P0001', message = 'CRM operation not permitted.';
   end if;
 
-  select opportunity into item
+  select opportunity.* into item
   from public.opportunities opportunity
   where opportunity.id = target_opportunity_id and opportunity.organization_id = membership.organization_id
   for update;

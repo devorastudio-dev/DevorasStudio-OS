@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(28);
+select plan(31);
 select has_table('public','clients','clients exist');
 select has_table('public','client_opportunities','client opportunity links exist');
 select has_function('public','convert_won_opportunity_to_client',array['uuid'],'conversion RPC exists');
@@ -31,10 +31,14 @@ select throws_ok($$select public.convert_won_opportunity_to_client(gen_random_uu
 select lives_ok($$select public.get_crm_dashboard(30)$$,'crm.read can view aggregate');
 select throws_ok($$select public.get_crm_dashboard(365)$$,'22023','Invalid dashboard period.','dashboard rejects unsupported period');
 
+select set_config('request.jwt.claims','{"sub":"50000000-0000-4000-8000-000000000011","role":"authenticated","aal":"aal1"}',true);
+select throws_ok($$select public.convert_won_opportunity_to_client(gen_random_uuid())$$,'P0001','CRM operation not permitted.','AAL1 cannot convert');
 select set_config('request.jwt.claims','{"sub":"50000000-0000-4000-8000-000000000011","role":"authenticated","aal":"aal2"}',true);
 select lives_ok($$select public.create_opportunity_from_lead('50000000-0000-4000-8000-000000000061','Projeto C5',9000)$$,'writer creates opportunity');
 select throws_ok($$select public.convert_won_opportunity_to_client((select id from public.opportunities))$$,'23514','Only won opportunities can be converted.','open opportunity cannot convert');
-select lives_ok($$select public.move_opportunity((select id from public.opportunities),(select id from public.pipeline_stages where organization_id='50000000-0000-4000-8000-000000000001' and category='won'),1)$$,'opportunity becomes won');
+select lives_ok($$select public.move_opportunity((select id from public.opportunities),(select id from public.pipeline_stages where organization_id='50000000-0000-4000-8000-000000000001' and category='lost'),1,'price')$$,'opportunity becomes lost');
+select throws_ok($$select public.convert_won_opportunity_to_client((select id from public.opportunities))$$,'23514','Only won opportunities can be converted.','lost opportunity cannot convert');
+select lives_ok($$select public.move_opportunity((select id from public.opportunities),(select id from public.pipeline_stages where organization_id='50000000-0000-4000-8000-000000000001' and category='won'),2)$$,'opportunity becomes won');
 select lives_ok($$select public.convert_won_opportunity_to_client((select id from public.opportunities))$$,'won opportunity converts');
 select is((select count(*)::integer from public.clients),1,'exactly one client is created');
 select is((select count(*)::integer from public.client_opportunities),1,'source opportunity is linked');
