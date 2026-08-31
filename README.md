@@ -197,6 +197,8 @@ O dashboard expõe `/crm/pipeline` para membros AAL2 com `crm.read`. A conversã
 
 Interações realizadas são atividades; ações futuras são tarefas com prazo e responsável. A próxima ação de um lead ou oportunidade é derivada da tarefa pendente mais próxima. A visão `/crm/tasks` apresenta vencimentos e alertas operacionais. Consulte [Atividades, tarefas e próxima ação](docs/crm-activities-tasks.md).
 
+O detalhe de uma oportunidade ganha permite conversão explícita e idempotente em cliente. `/crm/clients` mantém a base convertida, enquanto `/crm` consolida pipeline, conversão, tarefas e ausência de próxima ação diretamente no banco. Consulte [Conversão em cliente e dashboard comercial](docs/crm-clients-dashboard.md).
+
 ## CI
 
 Em pushes e pull requests para `main`, `.github/workflows/ci.yml` usa Node 24, `npm ci` e cache npm; verifica formatação, lint, tipos, Supabase local, reset, DB lint, pgTAP, Vitest e build. Qualquer falha interrompe o job.
@@ -285,6 +287,7 @@ Use branches e pull requests, Conventional Commits em mudanças pequenas e revis
 - [CRM base: leads, empresas e contatos](docs/crm-base.md)
 - [Pipeline comercial e oportunidades](docs/crm-pipeline.md)
 - [Atividades, tarefas e próxima ação](docs/crm-activities-tasks.md)
+- [Conversão em cliente e dashboard comercial](docs/crm-clients-dashboard.md)
 - [Matriz consolidada de RLS](docs/rls-security.md)
 - [Núcleo de organizações e RLS](docs/database-core.md)
 - [ADR de identidade e autorização](docs/adr/0001-identidade-e-autorizacao-organizacional.md)

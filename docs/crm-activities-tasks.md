@@ -57,6 +57,6 @@ Os testes usam somente UUIDs e endereços `example.invalid`. Para diagnóstico, 
 
 - não há edição do conteúdo de atividade;
 - tarefa pode ser criada e ter seu estado alterado, mas edição de título/prazo fica para refinamento posterior;
-- indicadores “sem próxima ação” consideram até 1.000 registros por consulta nesta primeira operação;
+- os indicadores “sem próxima ação” passaram a ser agregados no banco na C5, sem o limite intermediário de 1.000 registros;
 - filtros de entidade são oferecidos pelos detalhes relacionados; a lista geral evita PII em query params;
 - não há prioridade, recorrência, automação, cadência, calendário externo ou tarefa de projeto.
