@@ -259,6 +259,20 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
+.proposal-item-editor {
+  flex: 1 0 100%;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+.proposal-item-editor > [role="alert"] {
+  grid-column: 1/-1;
+}
+.proposal-item-editor-actions {
+  grid-column: 1/-1;
+  align-items: center;
+}
 .crm-field {
   min-width: 0;
 }
@@ -459,6 +473,13 @@
   .crm-task-list li {
     align-items: stretch;
     flex-direction: column;
+  }
+  .crm-list-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .proposal-item-editor-actions .dv-button {
+    flex: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

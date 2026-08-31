@@ -2,6 +2,7 @@ import { Alert, Button, Card, Input, Label } from "@devora/ui";
 import { createProposal } from "../../../lib/proposals/actions";
 import { requireProposalsAccess } from "../../../lib/proposals/access";
 import { createClient } from "../../../lib/supabase/server";
+import { resolveProposalPrefill } from "../../../lib/proposals/prefill";
 export default async function NewProposal({
   searchParams,
 }: {
@@ -28,6 +29,7 @@ export default async function NewProposal({
       .eq("organization_id", access.organization.id)
       .limit(100),
   ]);
+  const prefill = resolveProposalPrefill(q, clients ?? [], links ?? []);
   return (
     <>
       <header className="crm-page-header">
@@ -49,7 +51,7 @@ export default async function NewProposal({
             <select
               id="clientId"
               name="clientId"
-              defaultValue={q.client ?? ""}
+              defaultValue={prefill.clientId}
               required
             >
               <option value="">Selecione</option>
@@ -65,11 +67,13 @@ export default async function NewProposal({
             <select
               id="opportunityId"
               name="opportunityId"
-              defaultValue={q.opportunity ?? ""}
+              defaultValue={prefill.opportunityId}
             >
               <option value="">Sem oportunidade</option>
               {(links ?? [])
-                .filter((v) => !q.client || v.client_id === q.client)
+                .filter(
+                  (v) => !prefill.clientId || v.client_id === prefill.clientId,
+                )
                 .map((v) => (
                   <option key={v.opportunity_id} value={v.opportunity_id}>
                     Oportunidade {v.opportunity_id.slice(0, 8)}

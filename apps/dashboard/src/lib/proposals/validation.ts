@@ -54,24 +54,45 @@ export const proposalUpdateSchema = z.object({
     .transform((v) => v || null),
   discount: money,
 });
-export const itemSchema = z.object({
-  proposalId: z.string().uuid(),
-  itemId: uuidOrEmpty,
-  serviceId: uuidOrEmpty,
-  name: z.string().trim().max(160),
-  description: z.string().trim().max(2000).optional(),
-  quantity: z
-    .string()
-    .regex(/^\d{1,6}(\.\d{1,3})?$/)
-    .transform(Number)
-    .refine((v) => v > 0),
-  unit: z.enum(SERVICE_UNITS).optional(),
-  unitPrice: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v ? money.parse(v) : null)),
-});
+export const itemSchema = z
+  .object({
+    proposalId: z.string().uuid(),
+    itemId: uuidOrEmpty,
+    serviceId: uuidOrEmpty,
+    name: z.string().trim().max(160),
+    description: z.string().trim().max(2000).optional(),
+    quantity: z
+      .string()
+      .regex(/^\d{1,6}(\.\d{1,3})?$/)
+      .transform(Number)
+      .refine((v) => v > 0),
+    unit: z.enum(SERVICE_UNITS).optional(),
+    unitPrice: z
+      .union([money, z.literal("")])
+      .optional()
+      .transform((v) => (typeof v === "number" ? v : null)),
+  })
+  .superRefine((item, context) => {
+    if (item.serviceId && !item.itemId) return;
+    if (item.name.length < 2)
+      context.addIssue({
+        code: "custom",
+        path: ["name"],
+        message: "Nome inválido",
+      });
+    if (!item.unit)
+      context.addIssue({
+        code: "custom",
+        path: ["unit"],
+        message: "Unidade inválida",
+      });
+    if (item.unitPrice === null)
+      context.addIssue({
+        code: "custom",
+        path: ["unitPrice"],
+        message: "Preço inválido",
+      });
+  });
 export const proposalFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   q: z.string().trim().max(120).optional(),

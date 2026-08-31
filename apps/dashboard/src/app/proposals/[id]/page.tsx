@@ -15,6 +15,7 @@ import {
   unitLabels,
 } from "../../../lib/proposals/validation";
 import { createClient } from "../../../lib/supabase/server";
+import { ProposalItemEditor } from "../_components/proposal-item-editor";
 export default async function ProposalDetail({
   params,
   searchParams,
@@ -153,6 +154,14 @@ export default async function ProposalDetail({
                 </div>
                 {editable ? (
                   <div className="crm-inline-links">
+                    <ProposalItemEditor
+                      proposalId={id}
+                      item={v}
+                      canEdit={editable}
+                      hasError={
+                        q.error === "item-validation" || q.error === "item"
+                      }
+                    />
                     <form action={moveProposalItem}>
                       <input type="hidden" name="proposalId" value={id} />
                       <input type="hidden" name="itemId" value={v.id} />

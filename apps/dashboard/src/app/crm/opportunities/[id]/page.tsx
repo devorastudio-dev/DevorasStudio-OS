@@ -31,6 +31,10 @@ export default async function OpportunityDetail({
 }) {
   const access = await requireCrmAccess();
   const canWrite = await hasPermission("crm.write", access.organization.id);
+  const canWriteProposals = await hasPermission(
+    "proposals.write",
+    access.organization.id,
+  );
   const { id } = await params;
   const supabase = await createClient();
   const [{ data: opportunity }, { data: stages }, { data: members }] =
@@ -147,12 +151,16 @@ export default async function OpportunityDetail({
               <Link href={`/crm/clients/${clientRelation.client_id}`}>
                 Abrir cliente
               </Link>
-              {" · "}
-              <Link
-                href={`/proposals/new?client=${clientRelation.client_id}&opportunity=${id}`}
-              >
-                Criar proposta
-              </Link>
+              {canWriteProposals ? (
+                <>
+                  {" · "}
+                  <Link
+                    href={`/proposals/new?client=${clientRelation.client_id}&opportunity=${id}`}
+                  >
+                    Criar proposta
+                  </Link>
+                </>
+              ) : null}
             </>
           ) : currentStage?.category === "won" ? (
             canWrite ? (

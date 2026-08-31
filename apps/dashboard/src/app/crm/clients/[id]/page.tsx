@@ -3,6 +3,7 @@ import { Alert, Card } from "@devora/ui";
 import { notFound } from "next/navigation";
 import { requireCrmAccess } from "../../../../lib/crm/access";
 import { createClient } from "../../../../lib/supabase/server";
+import { hasPermission } from "../../../../lib/auth/permissions";
 export default async function ClientDetail({
   params,
   searchParams,
@@ -11,6 +12,10 @@ export default async function ClientDetail({
   searchParams: Promise<{ converted?: string }>;
 }) {
   const access = await requireCrmAccess();
+  const canWriteProposals = await hasPermission(
+    "proposals.write",
+    access.organization.id,
+  );
   const { id } = await params;
   const supabase = await createClient();
   const { data: client } = await supabase
@@ -123,7 +128,9 @@ export default async function ClientDetail({
           </p>
         </div>
         <div className="crm-inline-links">
-          <Link href={`/proposals/new?client=${id}`}>Nova proposta</Link>
+          {canWriteProposals ? (
+            <Link href={`/proposals/new?client=${id}`}>Nova proposta</Link>
+          ) : null}
           <Link href="/crm/clients">Voltar aos clientes</Link>
         </div>
       </header>
