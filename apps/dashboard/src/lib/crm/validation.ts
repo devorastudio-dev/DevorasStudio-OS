@@ -21,6 +21,15 @@ const phone = z
   .regex(/^[0-9+(). -]*$/)
   .optional()
   .transform((value) => value || null);
+const optionalEmail = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email()
+  .max(254)
+  .optional()
+  .or(z.literal(""))
+  .transform((value) => value || null);
 
 export const crmFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
@@ -40,7 +49,7 @@ export const crmFiltersSchema = z.object({
 export const leadSchema = z
   .object({
     fullName: z.string().trim().min(2).max(120),
-    email: z.string().trim().toLowerCase().email().max(254),
+    email: optionalEmail,
     phone,
     companyText: optionalText(160),
     serviceInterest: z.enum([
@@ -145,6 +154,19 @@ export const leadUpdateSchema = z
   .object({
     id: z.string().uuid(),
     version: z.coerce.number().int().positive(),
+    fullName: z.string().trim().min(2).max(120),
+    email: optionalEmail,
+    phone,
+    companyText: optionalText(160),
+    serviceInterest: z.enum([
+      "digital_presence",
+      "business_systems",
+      "automation",
+      "other",
+    ]),
+    message: z.string().trim().min(20).max(2000),
+    source: z.enum(CRM_SOURCES),
+    sourceDetail: optionalText(120),
     triageStatus: z.enum(CRM_TRIAGE),
     disqualificationReason: optionalText(500),
     assignedMembershipId: optionalUuid,
@@ -153,6 +175,18 @@ export const leadUpdateSchema = z
     archived: z.boolean().default(false),
   })
   .superRefine((value, context) => {
+    if (value.source === "other" && !value.sourceDetail)
+      context.addIssue({
+        code: "custom",
+        path: ["sourceDetail"],
+        message: "Descreva a origem.",
+      });
+    if (value.source !== "other" && value.sourceDetail)
+      context.addIssue({
+        code: "custom",
+        path: ["sourceDetail"],
+        message: "Origem complementar inesperada.",
+      });
     if (
       value.triageStatus === "disqualified" &&
       (!value.disqualificationReason || value.disqualificationReason.length < 3)

@@ -6,6 +6,7 @@ import { crmFiltersSchema } from "../../../lib/crm/validation";
 import { sourceLabels, triageLabels } from "../../../lib/crm/constants";
 import { CrmFilters } from "../_components/filters";
 import { Pagination } from "../_components/pagination";
+import { leadEmailText } from "../../../lib/crm/lead-presentation";
 export const dynamic = "force-dynamic";
 const pageSize = 20;
 export default async function LeadsPage({
@@ -80,7 +81,9 @@ export default async function LeadsPage({
                 <tr key={lead.id}>
                   <td>
                     <Link href={`/crm/leads/${lead.id}`}>{lead.full_name}</Link>
-                    <small>{lead.company || lead.email}</small>
+                    <small>
+                      {lead.company || leadEmailText(lead.email, "Sem e-mail")}
+                    </small>
                   </td>
                   <td>
                     {sourceLabels[lead.source as keyof typeof sourceLabels] ??

@@ -10,6 +10,10 @@ import { sourceLabels } from "../../../../lib/crm/constants";
 import { createOpportunityFromLead } from "../../../../lib/crm/pipeline-actions";
 import { PipelineSubmit } from "../../_components/pipeline-submit";
 import { ActivityTaskPanel } from "../../_components/activity-task-panel";
+import {
+  leadEmailHref,
+  leadEmailText,
+} from "../../../../lib/crm/lead-presentation";
 export default async function LeadDetail({
   params,
   searchParams,
@@ -50,12 +54,14 @@ export default async function LeadDetail({
       .eq("state", "active"),
   ]);
   if (!lead) notFound();
-  const { count: possibleDuplicates } = await supabase
-    .from("leads")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", access.organization.id)
-    .eq("email", lead.email)
-    .neq("id", lead.id);
+  const { count: possibleDuplicates } = lead.email
+    ? await supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("organization_id", access.organization.id)
+        .eq("email", lead.email)
+        .neq("id", lead.id)
+    : { count: 0 };
   const { data: existingOpportunity } = await supabase
     .from("opportunities")
     .select("id")
@@ -109,7 +115,15 @@ export default async function LeadDetail({
           <h2>Contato e contexto</h2>
           <dl className="crm-details">
             <dt>E-mail</dt>
-            <dd>{lead.email}</dd>
+            <dd>
+              {leadEmailHref(lead.email) ? (
+                <a href={leadEmailHref(lead.email) ?? undefined}>
+                  {leadEmailText(lead.email)}
+                </a>
+              ) : (
+                leadEmailText(lead.email)
+              )}
+            </dd>
             <dt>Telefone</dt>
             <dd>{lead.phone ?? "Não informado"}</dd>
             <dt>Empresa informada</dt>
@@ -126,7 +140,7 @@ export default async function LeadDetail({
         </Card>
         {canWrite ? (
           <Card>
-            <h2>Triagem e vínculos</h2>
+            <h2>Editar lead</h2>
             <LeadUpdateForm
               action={updateLead}
               lead={lead}

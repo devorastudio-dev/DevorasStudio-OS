@@ -36,6 +36,12 @@ describe("contratos do CRM", () => {
     expect(result.email).toBe("pessoa@example.invalid");
     expect(result.phone).toBeNull();
   });
+  it("aceita lead manual sem email e rejeita email invalido", () => {
+    expect(leadSchema.parse({ ...lead, email: "" }).email).toBeNull();
+    expect(leadSchema.safeParse({ ...lead, email: "invalido" }).success).toBe(
+      false,
+    );
+  });
   it("exige descrição para origem outro", () => {
     expect(leadSchema.safeParse({ ...lead, source: "other" }).success).toBe(
       false,
@@ -49,6 +55,7 @@ describe("contratos do CRM", () => {
   it("exige motivo ao desqualificar", () => {
     expect(
       leadUpdateSchema.safeParse({
+        ...lead,
         id: crypto.randomUUID(),
         version: 1,
         triageStatus: "disqualified",

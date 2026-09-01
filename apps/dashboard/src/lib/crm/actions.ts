@@ -54,7 +54,7 @@ export async function createLead(formData: FormData) {
 }
 
 export async function updateLead(formData: FormData) {
-  const access = await requireCrmAccess("crm.write");
+  await requireCrmAccess("crm.write");
   const parsed = leadUpdateSchema.safeParse({
     ...formObject(formData),
     archived: formData.get("archived") === "true",
@@ -62,21 +62,25 @@ export async function updateLead(formData: FormData) {
   if (!parsed.success)
     redirect(`/crm/leads/${pathValue(formData, "id")}?error=validation`);
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("leads")
-    .update({
-      triage_status: parsed.data.triageStatus,
-      disqualification_reason: parsed.data.disqualificationReason,
-      assigned_membership_id: parsed.data.assignedMembershipId,
-      company_id: parsed.data.companyId,
-      contact_id: parsed.data.contactId,
-      archived_at: parsed.data.archived ? new Date().toISOString() : null,
-    })
-    .eq("organization_id", access.organization.id)
-    .eq("id", parsed.data.id)
-    .eq("version", parsed.data.version)
-    .select("id")
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("update_crm_lead", {
+    target_lead_id: parsed.data.id,
+    expected_version: parsed.data.version,
+    lead_full_name: parsed.data.fullName,
+    lead_email: parsed.data.email ?? "",
+    lead_phone: parsed.data.phone ?? "",
+    lead_company: parsed.data.companyText ?? "",
+    lead_service_interest: parsed.data.serviceInterest,
+    lead_message: parsed.data.message,
+    lead_source: parsed.data.source,
+    lead_source_detail: parsed.data.sourceDetail ?? "",
+    target_assigned_membership_id:
+      parsed.data.assignedMembershipId ?? undefined,
+    target_company_id: parsed.data.companyId ?? undefined,
+    target_contact_id: parsed.data.contactId ?? undefined,
+    target_triage_status: parsed.data.triageStatus,
+    lead_disqualification_reason: parsed.data.disqualificationReason ?? "",
+    target_archived: parsed.data.archived,
+  });
   if (error || !data) redirect(`/crm/leads/${parsed.data.id}?error=conflict`);
   revalidatePath("/crm");
   redirect(`/crm/leads/${parsed.data.id}?saved=1`);

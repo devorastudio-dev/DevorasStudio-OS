@@ -1,5 +1,6 @@
 import { Button, Input, Label, Textarea } from "@devora/ui";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   CRM_SOURCES,
   CRM_TRIAGE,
@@ -43,8 +44,8 @@ export function LeadCreateForm({
           maxLength={120}
         />
       </Field>
-      <Field id="email" label="E-mail">
-        <Input id="email" name="email" type="email" required />
+      <Field id="email" label="E-mail (opcional)">
+        <Input id="email" name="email" type="email" />
       </Field>
       <Field id="phone" label="Telefone">
         <Input id="phone" name="phone" />
@@ -137,6 +138,14 @@ export function LeadUpdateForm({
     company_id: string | null;
     contact_id: string | null;
     archived_at: string | null;
+    full_name: string;
+    email: string | null;
+    phone: string | null;
+    company: string | null;
+    service_interest: string;
+    message: string;
+    source: string;
+    source_detail: string | null;
   };
   members: Option[];
   companies: Option[];
@@ -146,6 +155,73 @@ export function LeadUpdateForm({
     <form action={action} className="crm-form">
       <input type="hidden" name="id" value={lead.id} />
       <input type="hidden" name="version" value={lead.version} />
+      <Field id="fullName" label="Nome completo">
+        <Input
+          id="fullName"
+          name="fullName"
+          required
+          minLength={2}
+          maxLength={120}
+          defaultValue={lead.full_name}
+        />
+      </Field>
+      <Field id="email" label="E-mail (opcional)">
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          defaultValue={lead.email ?? ""}
+        />
+      </Field>
+      <Field id="phone" label="Telefone">
+        <Input id="phone" name="phone" defaultValue={lead.phone ?? ""} />
+      </Field>
+      <Field id="companyText" label="Empresa informada">
+        <Input
+          id="companyText"
+          name="companyText"
+          defaultValue={lead.company ?? ""}
+        />
+      </Field>
+      <Field id="serviceInterest" label="Interesse">
+        <select
+          id="serviceInterest"
+          name="serviceInterest"
+          defaultValue={lead.service_interest}
+        >
+          <option value="digital_presence">Presença digital</option>
+          <option value="business_systems">Sistemas</option>
+          <option value="automation">Automação</option>
+          <option value="other">Outro</option>
+        </select>
+      </Field>
+      <Field id="source" label="Origem">
+        <select id="source" name="source" defaultValue={lead.source}>
+          {CRM_SOURCES.map((v) => (
+            <option key={v} value={v}>
+              {sourceLabels[v]}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field id="sourceDetail" label="Detalhe da origem (somente Outro)">
+        <Input
+          id="sourceDetail"
+          name="sourceDetail"
+          maxLength={120}
+          defaultValue={lead.source_detail ?? ""}
+        />
+      </Field>
+      <Field id="message" label="Contexto">
+        <Textarea
+          id="message"
+          name="message"
+          required
+          minLength={20}
+          maxLength={2000}
+          defaultValue={lead.message}
+        />
+      </Field>
       <Field id="triageStatus" label="Triagem">
         <select
           id="triageStatus"
@@ -201,6 +277,7 @@ export function LeadUpdateForm({
         Arquivado
       </label>
       <Button type="submit">Salvar alterações</Button>
+      <Link href={`/crm/leads/${lead.id}`}>Cancelar</Link>
     </form>
   );
 }

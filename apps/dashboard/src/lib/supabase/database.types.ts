@@ -599,7 +599,7 @@ export type Database = {
           contact_id: string | null;
           created_at: string;
           disqualification_reason: string | null;
-          email: string;
+          email: string | null;
           full_name: string;
           id: string;
           internal_updated_at: string;
@@ -631,7 +631,7 @@ export type Database = {
           contact_id?: string | null;
           created_at?: string;
           disqualification_reason?: string | null;
-          email: string;
+          email?: string | null;
           full_name: string;
           id?: string;
           internal_updated_at?: string;
@@ -663,7 +663,7 @@ export type Database = {
           contact_id?: string | null;
           created_at?: string;
           disqualification_reason?: string | null;
-          email?: string;
+          email?: string | null;
           full_name?: string;
           id?: string;
           internal_updated_at?: string;
@@ -1581,6 +1581,27 @@ export type Database = {
           target_task_id: string;
         };
         Returns: number;
+      };
+      update_crm_lead: {
+        Args: {
+          expected_version: number;
+          lead_company: string;
+          lead_disqualification_reason?: string;
+          lead_email: string;
+          lead_full_name: string;
+          lead_message: string;
+          lead_phone: string;
+          lead_service_interest: string;
+          lead_source: string;
+          lead_source_detail: string;
+          target_archived?: boolean;
+          target_assigned_membership_id?: string;
+          target_company_id?: string;
+          target_contact_id?: string;
+          target_lead_id: string;
+          target_triage_status?: Database["public"]["Enums"]["crm_lead_triage_status"];
+        };
+        Returns: string;
       };
       update_opportunity: {
         Args: {
