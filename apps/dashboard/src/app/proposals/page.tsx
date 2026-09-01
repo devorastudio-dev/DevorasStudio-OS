@@ -49,6 +49,10 @@ export default async function Proposals({
           <h1>Propostas</h1>
           <p>Rascunhos estruturados vinculados aos clientes.</p>
         </div>
+        <div className="crm-inline-links">
+          <Link href="/proposals/templates">Modelos</Link>
+          <Link href="/proposals/new">Nova proposta</Link>
+        </div>
       </header>
       <form className="crm-filters">
         <div>

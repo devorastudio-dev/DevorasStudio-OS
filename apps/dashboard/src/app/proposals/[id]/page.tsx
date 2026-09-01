@@ -11,6 +11,7 @@ import {
   removeProposalSection,
   moveProposalSection,
   updateDocumentSettings,
+  createProposalVersion,
 } from "../../../lib/proposals/actions";
 import { requireProposalsAccess } from "../../../lib/proposals/access";
 import {
@@ -88,10 +89,29 @@ export default async function ProposalDetail({
           <p>Rascunho · Cliente {proposal.client_id.slice(0, 8)}</p>
         </div>
         <div className="crm-inline-links">
+          {canWrite ? (
+            <form action={createProposalVersion}>
+              <input type="hidden" name="proposalId" value={id} />
+              <input
+                type="hidden"
+                name="requestKey"
+                value={crypto.randomUUID()}
+              />
+              <Button type="submit">Criar versão</Button>
+            </form>
+          ) : null}
           <Link href={`/proposals/${id}/preview`}>Abrir preview</Link>
           <Link href="/proposals">Voltar</Link>
         </div>
       </header>
+      <Card>
+        <h2>Histórico imutável</h2>
+        <p>
+          As versões congelam cliente, dados institucionais, conteúdo, itens e
+          totais no momento da criação.
+        </p>
+        <Link href={`/proposals/${id}/versions`}>Ver versões</Link>
+      </Card>
       {q.created || q.saved ? (
         <Alert variant="success">Proposta salva.</Alert>
       ) : q.error ? (

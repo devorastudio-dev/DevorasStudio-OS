@@ -3,6 +3,7 @@ import { createProposal } from "../../../lib/proposals/actions";
 import { requireProposalsAccess } from "../../../lib/proposals/access";
 import { createClient } from "../../../lib/supabase/server";
 import { resolveProposalPrefill } from "../../../lib/proposals/prefill";
+import { createProposalsDb } from "../../../lib/proposals/db";
 export default async function NewProposal({
   searchParams,
 }: {
@@ -15,20 +16,29 @@ export default async function NewProposal({
   const access = await requireProposalsAccess("proposals.write");
   const q = await searchParams;
   const s = await createClient();
-  const [{ data: clients }, { data: links }] = await Promise.all([
-    s
-      .from("clients")
-      .select("id,company_id,primary_contact_id,source_lead_id")
-      .eq("organization_id", access.organization.id)
-      .eq("state", "active")
-      .order("converted_at", { ascending: false })
-      .limit(100),
-    s
-      .from("client_opportunities")
-      .select("client_id,opportunity_id")
-      .eq("organization_id", access.organization.id)
-      .limit(100),
-  ]);
+  const db = await createProposalsDb();
+  const [{ data: clients }, { data: rawTemplates }, { data: links }] =
+    await Promise.all([
+      s
+        .from("clients")
+        .select("id,company_id,primary_contact_id,source_lead_id")
+        .eq("organization_id", access.organization.id)
+        .eq("state", "active")
+        .order("converted_at", { ascending: false })
+        .limit(100),
+      db
+        .from("proposal_templates")
+        .select("id,name")
+        .eq("organization_id", access.organization.id)
+        .eq("is_active", true)
+        .order("name"),
+      s
+        .from("client_opportunities")
+        .select("client_id,opportunity_id")
+        .eq("organization_id", access.organization.id)
+        .limit(100),
+    ]);
+  const templates = (rawTemplates ?? []) as Array<{ id: string; name: string }>;
   const prefill = resolveProposalPrefill(q, clients ?? [], links ?? []);
   return (
     <>
@@ -46,6 +56,17 @@ export default async function NewProposal({
       ) : null}
       <Card>
         <form action={createProposal} className="crm-form">
+          <div>
+            <Label htmlFor="templateId">Modelo</Label>
+            <select id="templateId" name="templateId">
+              <option value="">Em branco</option>
+              {(templates ?? []).map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <Label htmlFor="clientId">Cliente</Label>
             <select

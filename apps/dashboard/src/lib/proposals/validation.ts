@@ -139,6 +139,16 @@ export const documentSettingsSchema = z.object({
     .optional()
     .transform((v) => v || null),
 });
+export const proposalTemplateSchema = z.object({
+  id: uuidOrEmpty,
+  name: z.string().trim().min(2).max(120),
+  description: z.string().trim().max(500).optional(),
+  active: z.boolean(),
+});
+export const proposalVersionSchema = z.object({
+  proposalId: z.string().uuid(),
+  requestKey: z.string().uuid(),
+});
 export const formatMoney = (value: number | string) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
     Number(value),

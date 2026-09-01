@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "../supabase/server";
+import { createProposalsDb } from "./db";
 import { requireProposalsAccess } from "./access";
 import {
   itemSchema,
@@ -10,6 +11,8 @@ import {
   serviceSchema,
   proposalSectionSchema,
   documentSettingsSchema,
+  proposalTemplateSchema,
+  proposalVersionSchema,
 } from "./validation";
 const f = (d: FormData, n: string) => String(d.get(n) ?? "");
 export async function saveService(d: FormData) {
@@ -124,15 +127,104 @@ export async function createProposal(d: FormData) {
     validUntil: f(d, "validUntil"),
   });
   if (!p.success) redirect("/proposals/new?error=validation");
-  const s = await createClient();
-  const { data, error } = await s.rpc("create_proposal", {
+  const templateId = f(d, "templateId");
+  const args = {
     target_client_id: p.data.clientId,
     target_opportunity_id: p.data.opportunityId ?? undefined,
     proposal_title: p.data.title,
     proposal_valid_until: p.data.validUntil ?? undefined,
-  });
+  };
+  const { data, error } = templateId
+    ? await (
+        await createProposalsDb()
+      ).rpc("create_proposal_from_template", {
+        ...args,
+        target_template_id: templateId,
+      })
+    : await (await createClient()).rpc("create_proposal", args);
   if (error || !data) redirect("/proposals/new?error=save");
   redirect(`/proposals/${data}?created=1`);
+}
+export async function saveProposalTemplate(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const p = proposalTemplateSchema.safeParse({
+    id: f(d, "id"),
+    name: f(d, "name"),
+    description: f(d, "description"),
+    active: d.get("active") === "on",
+  });
+  if (!p.success) redirect("/proposals/templates?error=validation");
+  const s = await createProposalsDb();
+  const result = p.data.id
+    ? await s.rpc("update_proposal_template", {
+        target_template_id: p.data.id,
+        template_name: p.data.name,
+        template_description: p.data.description ?? "",
+        target_active: p.data.active,
+      })
+    : await s.rpc("create_proposal_template", {
+        template_name: p.data.name,
+        template_description: p.data.description ?? "",
+      });
+  if (result.error) redirect("/proposals/templates?error=save");
+  const id = p.data.id ?? String(result.data);
+  revalidatePath("/proposals/templates");
+  redirect(`/proposals/templates/${id}?saved=1`);
+}
+export async function createProposalVersion(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const p = proposalVersionSchema.safeParse({
+    proposalId: f(d, "proposalId"),
+    requestKey: f(d, "requestKey"),
+  });
+  if (!p.success) redirect(`/proposals/${f(d, "proposalId")}?error=version`);
+  const s = await createProposalsDb();
+  const { data, error } = await s.rpc("create_proposal_version", {
+    target_proposal_id: p.data.proposalId,
+    target_request_key: p.data.requestKey,
+  });
+  if (error) redirect(`/proposals/${p.data.proposalId}?error=version`);
+  revalidatePath(`/proposals/${p.data.proposalId}`);
+  redirect(`/proposals/${p.data.proposalId}/versions/${data}`);
+}
+export async function createTemplateVersion(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const templateId = f(d, "templateId");
+  const requestKey = f(d, "requestKey");
+  const s = await createProposalsDb();
+  const { error } = await s.rpc("create_proposal_template_version", {
+    target_template_id: templateId,
+    target_request_key: requestKey,
+  });
+  if (error) redirect(`/proposals/templates/${templateId}?error=version`);
+  revalidatePath(`/proposals/templates/${templateId}`);
+  redirect(`/proposals/templates/${templateId}?versioned=1`);
+}
+export async function saveTemplateSection(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const templateId = f(d, "templateId");
+  const p = proposalSectionSchema.safeParse({
+    proposalId: templateId,
+    sectionId: f(d, "sectionId"),
+    sectionType: f(d, "sectionType"),
+    title: f(d, "title"),
+    content: f(d, "content"),
+    visible: d.get("visible") === "on",
+  });
+  if (!p.success) redirect(`/proposals/templates/${templateId}?error=section`);
+  const { error } = await (
+    await createProposalsDb()
+  ).rpc("save_proposal_template_section", {
+    target_template_id: templateId,
+    target_section_id: p.data.sectionId,
+    section_type: p.data.sectionType,
+    section_title: p.data.title,
+    section_content: p.data.content,
+    target_visible: p.data.visible,
+  });
+  if (error) redirect(`/proposals/templates/${templateId}?error=section`);
+  revalidatePath(`/proposals/templates/${templateId}`);
+  redirect(`/proposals/templates/${templateId}?saved=1`);
 }
 export async function updateProposal(d: FormData) {
   await requireProposalsAccess("proposals.write");
