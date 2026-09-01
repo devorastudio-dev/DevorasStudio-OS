@@ -127,19 +127,12 @@ export default async function ClientDetail({
             {new Date(client.converted_at).toLocaleString("pt-BR")}
           </p>
         </div>
-<<<<<<< HEAD
         <div className="crm-inline-links">
           {canWriteProposals ? (
             <Link href={`/proposals/new?client=${id}`}>Nova proposta</Link>
           ) : null}
           <Link href="/crm/clients">Voltar aos clientes</Link>
         </div>
-=======
-        <Link href="/crm/clients">Voltar aos clientes</Link>
-        {canWriteProposals ? (
-          <Link href={`/proposals/new?clientId=${id}`}>Nova proposta</Link>
-        ) : null}
->>>>>>> 5e27d76 (ajustes para correção de versões descincronizadas)
       </header>
       {query.converted ? (
         <Alert variant="success">Cliente confirmado com sucesso.</Alert>

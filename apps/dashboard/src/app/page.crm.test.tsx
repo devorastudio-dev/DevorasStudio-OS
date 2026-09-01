@@ -14,7 +14,26 @@ vi.mock("../lib/auth/access", () => ({
   }),
 }));
 vi.mock("../lib/auth/permissions", () => ({ hasPermission }));
-vi.mock("./auth/actions", () => ({ logoutAction: vi.fn() }));
+vi.mock("../lib/supabase/server", () => ({
+  createClient: async () => ({
+    rpc: async () => ({
+      data: { activeLeads: 2, openOpportunities: 1 },
+      error: null,
+    }),
+  }),
+}));
+vi.mock("../lib/proposals/db", () => ({
+  createProposalsDb: async () => ({
+    from: () => ({
+      select: () => ({ eq: () => ({ eq: async () => ({ data: [] }) }) }),
+    }),
+  }),
+}));
+vi.mock("../components/app-shell/app-shell", () => ({
+  AppShell: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
 import DashboardHome from "./page";
 describe("navegacao do CRM", () => {
   beforeEach(() => hasPermission.mockReset());
@@ -23,12 +42,12 @@ describe("navegacao do CRM", () => {
     hasPermission.mockImplementation(async (key: string) => key === "crm.read");
     render(await DashboardHome());
     expect(
-      screen.getByRole("link", { name: "Abrir CRM" }).getAttribute("href"),
-    ).toBe("/crm");
+      screen.getByRole("link", { name: /Leads ativos/ }).getAttribute("href"),
+    ).toBe("/crm/leads");
   });
   it("oculta CRM sem crm.read", async () => {
     hasPermission.mockResolvedValue(false);
     render(await DashboardHome());
-    expect(screen.queryByRole("link", { name: "Abrir CRM" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /Leads ativos/ })).toBeNull();
   });
 });
