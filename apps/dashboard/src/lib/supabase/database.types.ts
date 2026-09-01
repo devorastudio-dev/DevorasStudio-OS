@@ -1294,6 +1294,255 @@ export type Database = {
           },
         ];
       };
+      proposal_template_items: {
+        Row: {
+          description: string | null;
+          id: string;
+          name: string;
+          organization_id: string;
+          position: number;
+          quantity: number;
+          service_id: string | null;
+          template_id: string;
+          unit: Database["public"]["Enums"]["service_unit"];
+          unit_price: number;
+        };
+        Insert: {
+          description?: string | null;
+          id?: string;
+          name: string;
+          organization_id: string;
+          position: number;
+          quantity: number;
+          service_id?: string | null;
+          template_id: string;
+          unit: Database["public"]["Enums"]["service_unit"];
+          unit_price: number;
+        };
+        Update: {
+          description?: string | null;
+          id?: string;
+          name?: string;
+          organization_id?: string;
+          position?: number;
+          quantity?: number;
+          service_id?: string | null;
+          template_id?: string;
+          unit?: Database["public"]["Enums"]["service_unit"];
+          unit_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_template_items_service_fk";
+            columns: ["service_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_template_items_template_fk";
+            columns: ["template_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_templates";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_template_sections: {
+        Row: {
+          content: string;
+          id: string;
+          is_visible: boolean;
+          organization_id: string;
+          position: number;
+          section_type: Database["public"]["Enums"]["proposal_section_type"];
+          template_id: string;
+          title: string;
+        };
+        Insert: {
+          content?: string;
+          id?: string;
+          is_visible?: boolean;
+          organization_id: string;
+          position: number;
+          section_type: Database["public"]["Enums"]["proposal_section_type"];
+          template_id: string;
+          title: string;
+        };
+        Update: {
+          content?: string;
+          id?: string;
+          is_visible?: boolean;
+          organization_id?: string;
+          position?: number;
+          section_type?: Database["public"]["Enums"]["proposal_section_type"];
+          template_id?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_template_sections_template_fk";
+            columns: ["template_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_templates";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_template_versions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          organization_id: string;
+          request_key: string;
+          snapshot: Json;
+          template_id: string;
+          version_number: number;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          organization_id: string;
+          request_key: string;
+          snapshot: Json;
+          template_id: string;
+          version_number: number;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          organization_id?: string;
+          request_key?: string;
+          snapshot?: Json;
+          template_id?: string;
+          version_number?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_template_versions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_template_versions_template_fk";
+            columns: ["template_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_templates";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_templates: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          organization_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          description?: string | null;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          organization_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_templates_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_templates_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_templates_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      proposal_versions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          organization_id: string;
+          proposal_id: string;
+          request_key: string;
+          snapshot: Json;
+          version_number: number;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          id?: string;
+          organization_id: string;
+          proposal_id: string;
+          request_key: string;
+          snapshot: Json;
+          version_number: number;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          id?: string;
+          organization_id?: string;
+          proposal_id?: string;
+          request_key?: string;
+          snapshot?: Json;
+          version_number?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_versions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_versions_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       proposals: {
         Row: {
           client_id: string;
@@ -1305,6 +1554,8 @@ export type Database = {
           opportunity_id: string | null;
           organization_id: string;
           proposal_number: string;
+          source_template_id: string | null;
+          source_template_version: number | null;
           status: Database["public"]["Enums"]["proposal_status"];
           subtotal: number;
           title: string;
@@ -1324,6 +1575,8 @@ export type Database = {
           opportunity_id?: string | null;
           organization_id: string;
           proposal_number: string;
+          source_template_id?: string | null;
+          source_template_version?: number | null;
           status?: Database["public"]["Enums"]["proposal_status"];
           subtotal?: number;
           title: string;
@@ -1343,6 +1596,8 @@ export type Database = {
           opportunity_id?: string | null;
           organization_id?: string;
           proposal_number?: string;
+          source_template_id?: string | null;
+          source_template_version?: number | null;
           status?: Database["public"]["Enums"]["proposal_status"];
           subtotal?: number;
           title?: string;
@@ -1380,6 +1635,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "organizations";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposals_source_template_fk";
+            columns: ["source_template_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_templates";
+            referencedColumns: ["id", "organization_id"];
           },
           {
             foreignKeyName: "proposals_updated_by_fkey";
@@ -1586,6 +1848,28 @@ export type Database = {
         };
         Returns: string;
       };
+      create_proposal_from_template: {
+        Args: {
+          proposal_title: string;
+          proposal_valid_until: string;
+          target_client_id: string;
+          target_opportunity_id: string;
+          target_template_id: string;
+        };
+        Returns: string;
+      };
+      create_proposal_template: {
+        Args: { template_description?: string; template_name: string };
+        Returns: string;
+      };
+      create_proposal_template_version: {
+        Args: { target_request_key: string; target_template_id: string };
+        Returns: number;
+      };
+      create_proposal_version: {
+        Args: { target_proposal_id: string; target_request_key: string };
+        Returns: number;
+      };
       create_service: {
         Args: {
           service_description: string;
@@ -1694,6 +1978,30 @@ export type Database = {
         };
         Returns: string;
       };
+      save_proposal_template_item: {
+        Args: {
+          item_description: string;
+          item_name: string;
+          item_quantity: number;
+          item_unit: Database["public"]["Enums"]["service_unit"];
+          item_unit_price: number;
+          target_item_id: string;
+          target_service_id: string;
+          target_template_id: string;
+        };
+        Returns: string;
+      };
+      save_proposal_template_section: {
+        Args: {
+          section_content: string;
+          section_title: string;
+          section_type: Database["public"]["Enums"]["proposal_section_type"];
+          target_section_id: string;
+          target_template_id: string;
+          target_visible: boolean;
+        };
+        Returns: string;
+      };
       submit_public_lead: {
         Args: {
           company: string;
@@ -1768,6 +2076,15 @@ export type Database = {
           settings_logo_path?: string;
           settings_phone?: string;
           settings_website?: string;
+        };
+        Returns: undefined;
+      };
+      update_proposal_template: {
+        Args: {
+          target_active: boolean;
+          target_template_id: string;
+          template_description: string;
+          template_name: string;
         };
         Returns: undefined;
       };
