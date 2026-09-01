@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { itemSchema, proposalSchema, serviceSchema } from "./validation";
+import {
+  itemSchema,
+  proposalSchema,
+  proposalSectionSchema,
+  serviceSchema,
+} from "./validation";
 describe("proposal validation", () => {
   it("accepts decimal money and fractional quantity", () => {
     expect(
@@ -24,6 +29,24 @@ describe("proposal validation", () => {
         unitPrice: "100",
       }).quantity,
     ).toBe(1.5);
+  });
+  it("validates structured sections without accepting oversized content", () => {
+    const base = {
+      proposalId: "11111111-1111-4111-8111-111111111111",
+      sectionId: "",
+      sectionType: "custom",
+      title: "Garantia",
+      content: "Texto",
+      visible: true,
+    };
+    expect(proposalSectionSchema.safeParse(base).success).toBe(true);
+    expect(
+      proposalSectionSchema.safeParse({ ...base, title: "" }).success,
+    ).toBe(false);
+    expect(
+      proposalSectionSchema.safeParse({ ...base, content: "x".repeat(12001) })
+        .success,
+    ).toBe(false);
   });
   it("rejects malformed money", () =>
     expect(

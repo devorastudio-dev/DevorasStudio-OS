@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROPOSAL_SECTION_TYPES } from "./document";
 export const SERVICE_UNITS = [
   "project",
   "hour",
@@ -97,6 +98,46 @@ export const proposalFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   q: z.string().trim().max(120).optional(),
   status: z.literal("draft").optional(),
+});
+export const proposalSectionSchema = z.object({
+  proposalId: z.string().uuid(),
+  sectionId: uuidOrEmpty,
+  sectionType: z.enum(PROPOSAL_SECTION_TYPES),
+  title: z.string().trim().min(1).max(120),
+  content: z.string().max(12000),
+  visible: z.boolean(),
+});
+export const documentSettingsSchema = z.object({
+  displayName: z.string().trim().min(1).max(120),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email()
+    .max(254)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || null),
+  phone: z
+    .string()
+    .trim()
+    .max(30)
+    .optional()
+    .transform((v) => v || null),
+  website: z
+    .string()
+    .trim()
+    .url()
+    .max(2048)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || null),
+  city: z
+    .string()
+    .trim()
+    .max(120)
+    .optional()
+    .transform((v) => v || null),
 });
 export const formatMoney = (value: number | string) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(

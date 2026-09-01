@@ -918,6 +918,57 @@ export type Database = {
           },
         ];
       };
+      organization_document_settings: {
+        Row: {
+          city: string | null;
+          display_name: string;
+          email: string | null;
+          logo_path: string | null;
+          organization_id: string;
+          phone: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          website: string | null;
+        };
+        Insert: {
+          city?: string | null;
+          display_name: string;
+          email?: string | null;
+          logo_path?: string | null;
+          organization_id: string;
+          phone?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Update: {
+          city?: string | null;
+          display_name?: string;
+          email?: string | null;
+          logo_path?: string | null;
+          organization_id?: string;
+          phone?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          website?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_document_settings_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: true;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "organization_document_settings_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organization_member_roles: {
         Row: {
           created_at: string;
@@ -1173,6 +1224,73 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "services";
             referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_sections: {
+        Row: {
+          content: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          is_visible: boolean;
+          organization_id: string;
+          position: number;
+          proposal_id: string;
+          section_type: Database["public"]["Enums"]["proposal_section_type"];
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          content?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_visible?: boolean;
+          organization_id: string;
+          position: number;
+          proposal_id: string;
+          section_type: Database["public"]["Enums"]["proposal_section_type"];
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_visible?: boolean;
+          organization_id?: string;
+          position?: number;
+          proposal_id?: string;
+          section_type?: Database["public"]["Enums"]["proposal_section_type"];
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_sections_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_sections_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_sections_updated_by_fkey";
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
           },
         ];
       };
@@ -1515,6 +1633,10 @@ export type Database = {
         Args: { direction: number; target_item_id: string };
         Returns: undefined;
       };
+      move_proposal_section: {
+        Args: { direction: number; target_section_id: string };
+        Returns: undefined;
+      };
       record_administrative_audit: {
         Args: {
           event_action: string;
@@ -1544,6 +1666,10 @@ export type Database = {
         Args: { target_item_id: string };
         Returns: undefined;
       };
+      remove_proposal_section: {
+        Args: { target_section_id: string };
+        Returns: undefined;
+      };
       save_proposal_item: {
         Args: {
           item_description?: string;
@@ -1554,6 +1680,17 @@ export type Database = {
           target_item_id?: string;
           target_proposal_id: string;
           target_service_id?: string;
+        };
+        Returns: string;
+      };
+      save_proposal_section: {
+        Args: {
+          section_content?: string;
+          section_title?: string;
+          target_proposal_id: string;
+          target_section_id?: string;
+          target_section_type?: Database["public"]["Enums"]["proposal_section_type"];
+          target_visible?: boolean;
         };
         Returns: string;
       };
@@ -1623,6 +1760,17 @@ export type Database = {
         };
         Returns: undefined;
       };
+      update_proposal_document_settings: {
+        Args: {
+          settings_city?: string;
+          settings_display_name: string;
+          settings_email?: string;
+          settings_logo_path?: string;
+          settings_phone?: string;
+          settings_website?: string;
+        };
+        Returns: undefined;
+      };
       update_service: {
         Args: {
           service_description: string;
@@ -1669,6 +1817,17 @@ export type Database = {
         | "other";
       organization_member_status: "invited" | "active" | "suspended";
       pipeline_stage_category: "open" | "won" | "lost";
+      proposal_section_type:
+        | "introduction"
+        | "objective"
+        | "scope"
+        | "deliverables"
+        | "technologies"
+        | "timeline"
+        | "commercial_terms"
+        | "notes"
+        | "closing"
+        | "custom";
       proposal_status: "draft";
       service_unit: "project" | "hour" | "month" | "unit" | "custom";
     };
@@ -1839,6 +1998,18 @@ export const Constants = {
       ],
       organization_member_status: ["invited", "active", "suspended"],
       pipeline_stage_category: ["open", "won", "lost"],
+      proposal_section_type: [
+        "introduction",
+        "objective",
+        "scope",
+        "deliverables",
+        "technologies",
+        "timeline",
+        "commercial_terms",
+        "notes",
+        "closing",
+        "custom",
+      ],
       proposal_status: ["draft"],
       service_unit: ["project", "hour", "month", "unit", "custom"],
     },

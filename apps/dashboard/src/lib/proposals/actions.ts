@@ -8,6 +8,8 @@ import {
   proposalSchema,
   proposalUpdateSchema,
   serviceSchema,
+  proposalSectionSchema,
+  documentSettingsSchema,
 } from "./validation";
 const f = (d: FormData, n: string) => String(d.get(n) ?? "");
 export async function saveService(d: FormData) {
@@ -40,6 +42,78 @@ export async function saveService(d: FormData) {
   if (result.error) redirect("/proposals/services?error=save");
   revalidatePath("/proposals/services");
   redirect("/proposals/services?saved=1");
+}
+export async function saveProposalSection(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const p = proposalSectionSchema.safeParse({
+    proposalId: f(d, "proposalId"),
+    sectionId: f(d, "sectionId"),
+    sectionType: f(d, "sectionType"),
+    title: f(d, "title"),
+    content: f(d, "content"),
+    visible: d.get("visible") === "on",
+  });
+  if (!p.success)
+    redirect(`/proposals/${f(d, "proposalId")}?error=section-validation`);
+  const s = await createClient();
+  const { error } = await s.rpc("save_proposal_section", {
+    target_proposal_id: p.data.proposalId,
+    target_section_id: p.data.sectionId ?? undefined,
+    target_section_type: p.data.sectionType,
+    section_title: p.data.title,
+    section_content: p.data.content,
+    target_visible: p.data.visible,
+  });
+  if (error) redirect(`/proposals/${p.data.proposalId}?error=section`);
+  revalidatePath(`/proposals/${p.data.proposalId}`);
+  redirect(`/proposals/${p.data.proposalId}?saved=1`);
+}
+export async function removeProposalSection(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const proposalId = f(d, "proposalId");
+  const s = await createClient();
+  const { error } = await s.rpc("remove_proposal_section", {
+    target_section_id: f(d, "sectionId"),
+  });
+  if (error) redirect(`/proposals/${proposalId}?error=section`);
+  revalidatePath(`/proposals/${proposalId}`);
+  redirect(`/proposals/${proposalId}?saved=1`);
+}
+export async function moveProposalSection(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const proposalId = f(d, "proposalId");
+  const s = await createClient();
+  const { error } = await s.rpc("move_proposal_section", {
+    target_section_id: f(d, "sectionId"),
+    direction: Number(f(d, "direction")),
+  });
+  if (error) redirect(`/proposals/${proposalId}?error=section`);
+  revalidatePath(`/proposals/${proposalId}`);
+  redirect(`/proposals/${proposalId}?saved=1`);
+}
+export async function updateDocumentSettings(d: FormData) {
+  await requireProposalsAccess("proposals.write");
+  const proposalId = f(d, "proposalId");
+  const p = documentSettingsSchema.safeParse({
+    displayName: f(d, "displayName"),
+    email: f(d, "email"),
+    phone: f(d, "phone"),
+    website: f(d, "website"),
+    city: f(d, "city"),
+  });
+  if (!p.success)
+    redirect(`/proposals/${proposalId}?error=settings-validation`);
+  const s = await createClient();
+  const { error } = await s.rpc("update_proposal_document_settings", {
+    settings_display_name: p.data.displayName,
+    settings_email: p.data.email ?? undefined,
+    settings_phone: p.data.phone ?? undefined,
+    settings_website: p.data.website ?? undefined,
+    settings_city: p.data.city ?? undefined,
+  });
+  if (error) redirect(`/proposals/${proposalId}?error=settings`);
+  revalidatePath(`/proposals/${proposalId}`);
+  redirect(`/proposals/${proposalId}?saved=1`);
 }
 export async function createProposal(d: FormData) {
   await requireProposalsAccess("proposals.write");

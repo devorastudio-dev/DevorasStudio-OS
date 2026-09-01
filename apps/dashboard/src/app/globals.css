@@ -488,3 +488,148 @@
     transition: none;
   }
 }
+.proposal-section-card {
+  align-items: flex-start;
+  flex-direction: column;
+}
+.proposal-section-actions {
+  width: 100%;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.proposal-section-actions details {
+  flex: 1 0 100%;
+}
+.proposal-section-actions summary,
+.proposal-new-section summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #3b2b88;
+  padding: 0.5rem 0;
+}
+.proposal-preview-toolbar {
+  max-width: 210mm;
+  margin: 1rem auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.proposal-document {
+  width: min(210mm, calc(100vw - 2rem));
+  min-height: 297mm;
+  margin: 1rem auto 3rem;
+  background: white;
+  color: #172033;
+  padding: 18mm;
+  box-shadow: 0 10px 40px rgb(15 23 42/0.14);
+  overflow-wrap: anywhere;
+}
+.proposal-document-header,
+.proposal-document-meta,
+.proposal-document-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid #6d4aff;
+  padding-bottom: 1rem;
+}
+.proposal-document-header div,
+.proposal-document-meta div {
+  display: grid;
+  gap: 0.2rem;
+}
+.proposal-document-header span,
+.proposal-document-meta span,
+.proposal-document-footer span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+.proposal-document-meta {
+  border: 0;
+  background: #f5f3ff;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+.proposal-document h1 {
+  font-size: 2rem;
+  margin: 1.5rem 0 2rem;
+}
+.proposal-document-section {
+  margin: 1.75rem 0;
+  break-inside: avoid;
+}
+.proposal-document-section h2,
+.proposal-investment h2 {
+  color: #3b2b88;
+  font-size: 1.15rem;
+  border-bottom: 1px solid #ddd6fe;
+  padding-bottom: 0.4rem;
+}
+.proposal-document-section p {
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+.proposal-totals {
+  margin-left: auto;
+  max-width: 20rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem 1rem;
+  text-align: right;
+}
+.proposal-totals dd {
+  margin: 0;
+}
+.proposal-document-footer {
+  border: 0;
+  border-top: 2px solid #6d4aff;
+  padding-top: 1rem;
+  margin-top: 3rem;
+}
+@media (max-width: 600px) {
+  .proposal-document {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 1.25rem;
+    box-shadow: none;
+  }
+  .proposal-preview-toolbar,
+  .proposal-document-header,
+  .proposal-document-meta,
+  .proposal-document-footer {
+    flex-direction: column;
+  }
+  .proposal-preview-toolbar {
+    padding: 0 1rem;
+  }
+  .proposal-document .crm-table-wrap table {
+    min-width: 36rem;
+  }
+}
+@media print {
+  .crm-sidebar,
+  .crm-topbar,
+  .proposal-preview-toolbar {
+    display: none !important;
+  }
+  .crm-shell,
+  .crm-main,
+  .crm-content {
+    display: block;
+    padding: 0;
+    margin: 0;
+    background: white;
+  }
+  .proposal-document {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none;
+  }
+  .proposal-document-section,
+  .proposal-investment {
+    break-inside: avoid;
+  }
+}

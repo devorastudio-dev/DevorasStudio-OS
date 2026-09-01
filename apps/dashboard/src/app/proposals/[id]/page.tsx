@@ -7,6 +7,10 @@ import {
   removeProposalItem,
   saveProposalItem,
   updateProposal,
+  saveProposalSection,
+  removeProposalSection,
+  moveProposalSection,
+  updateDocumentSettings,
 } from "../../../lib/proposals/actions";
 import { requireProposalsAccess } from "../../../lib/proposals/access";
 import {
@@ -16,6 +20,10 @@ import {
 } from "../../../lib/proposals/validation";
 import { createClient } from "../../../lib/supabase/server";
 import { ProposalItemEditor } from "../_components/proposal-item-editor";
+import {
+  PROPOSAL_SECTION_TYPES,
+  sectionTypeLabels,
+} from "../../../lib/proposals/document";
 export default async function ProposalDetail({
   params,
   searchParams,
@@ -31,28 +39,44 @@ export default async function ProposalDetail({
   const { id } = await params;
   const q = await searchParams;
   const s = await createClient();
-  const [{ data: proposal }, { data: items }, { data: services }] =
-    await Promise.all([
-      s
-        .from("proposals")
-        .select("*")
-        .eq("organization_id", access.organization.id)
-        .eq("id", id)
-        .maybeSingle(),
-      s
-        .from("proposal_items")
-        .select("*")
-        .eq("organization_id", access.organization.id)
-        .eq("proposal_id", id)
-        .order("position"),
-      s
-        .from("services")
-        .select("id,name,default_unit,default_price")
-        .eq("organization_id", access.organization.id)
-        .eq("is_active", true)
-        .order("name")
-        .limit(100),
-    ]);
+  const [
+    { data: proposal },
+    { data: items },
+    { data: services },
+    { data: sections },
+    { data: settings },
+  ] = await Promise.all([
+    s
+      .from("proposals")
+      .select("*")
+      .eq("organization_id", access.organization.id)
+      .eq("id", id)
+      .maybeSingle(),
+    s
+      .from("proposal_items")
+      .select("*")
+      .eq("organization_id", access.organization.id)
+      .eq("proposal_id", id)
+      .order("position"),
+    s
+      .from("services")
+      .select("id,name,default_unit,default_price")
+      .eq("organization_id", access.organization.id)
+      .eq("is_active", true)
+      .order("name")
+      .limit(100),
+    s
+      .from("proposal_sections")
+      .select("*")
+      .eq("organization_id", access.organization.id)
+      .eq("proposal_id", id)
+      .order("position"),
+    s
+      .from("organization_document_settings")
+      .select("*")
+      .eq("organization_id", access.organization.id)
+      .maybeSingle(),
+  ]);
   if (!proposal) notFound();
   const editable = canWrite && proposal.status === "draft";
   return (
@@ -63,7 +87,10 @@ export default async function ProposalDetail({
           <h1>{proposal.title}</h1>
           <p>Rascunho · Cliente {proposal.client_id.slice(0, 8)}</p>
         </div>
-        <Link href="/proposals">Voltar</Link>
+        <div className="crm-inline-links">
+          <Link href={`/proposals/${id}/preview`}>Abrir preview</Link>
+          <Link href="/proposals">Voltar</Link>
+        </div>
       </header>
       {q.created || q.saved ? (
         <Alert variant="success">Proposta salva.</Alert>
@@ -186,6 +213,207 @@ export default async function ProposalDetail({
           <Alert variant="warning">Nenhum item adicionado.</Alert>
         )}
       </Card>
+      <Card>
+        <h2>Conteúdo do documento</h2>
+        <p>
+          Texto simples e tokens seguros. Disponíveis:{" "}
+          <code>{"{{client.name}}"}</code>, <code>{"{{proposal.number}}"}</code>
+          , <code>{"{{proposal.valid_until}}"}</code>,{" "}
+          <code>{"{{proposal.total}}"}</code>,{" "}
+          <code>{"{{organization.name}}"}</code>.
+        </p>
+        <div className="crm-card-list">
+          {(sections ?? []).map((section) => (
+            <div
+              className="crm-list-card proposal-section-card"
+              key={section.id}
+            >
+              <div>
+                <strong>
+                  {section.position}. {section.title}
+                </strong>
+                <span>
+                  {section.is_visible ? "Visível" : "Oculta"} ·{" "}
+                  {sectionTypeLabels[section.section_type]}
+                </span>
+              </div>
+              {editable ? (
+                <div className="proposal-section-actions">
+                  <details>
+                    <summary>Editar</summary>
+                    <form action={saveProposalSection} className="crm-form">
+                      <input type="hidden" name="proposalId" value={id} />
+                      <input
+                        type="hidden"
+                        name="sectionId"
+                        value={section.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="sectionType"
+                        value={section.section_type}
+                      />
+                      <div className="crm-field">
+                        <Label htmlFor={`section-title-${section.id}`}>
+                          Título
+                        </Label>
+                        <Input
+                          id={`section-title-${section.id}`}
+                          name="title"
+                          defaultValue={section.title}
+                          maxLength={120}
+                          required
+                        />
+                      </div>
+                      <div className="crm-field">
+                        <Label htmlFor={`section-content-${section.id}`}>
+                          Conteúdo
+                        </Label>
+                        <Textarea
+                          id={`section-content-${section.id}`}
+                          name="content"
+                          defaultValue={section.content}
+                          maxLength={12000}
+                        />
+                      </div>
+                      <label className="crm-check">
+                        <input
+                          type="checkbox"
+                          name="visible"
+                          defaultChecked={section.is_visible}
+                        />{" "}
+                        Exibir no preview
+                      </label>
+                      <div className="crm-inline-links">
+                        <Button type="submit">Salvar</Button>
+                        <Button type="reset" variant="secondary">
+                          Cancelar
+                        </Button>
+                      </div>
+                    </form>
+                  </details>
+                  <form action={moveProposalSection}>
+                    <input type="hidden" name="proposalId" value={id} />
+                    <input type="hidden" name="sectionId" value={section.id} />
+                    <button type="submit" name="direction" value="-1">
+                      Mover para cima
+                    </button>
+                    <button type="submit" name="direction" value="1">
+                      Mover para baixo
+                    </button>
+                  </form>
+                  <form action={removeProposalSection}>
+                    <input type="hidden" name="proposalId" value={id} />
+                    <input type="hidden" name="sectionId" value={section.id} />
+                    <Button type="submit" variant="secondary">
+                      Remover
+                    </Button>
+                  </form>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+        {editable ? (
+          <details className="proposal-new-section">
+            <summary>Adicionar seção personalizada</summary>
+            <form action={saveProposalSection} className="crm-form">
+              <input type="hidden" name="proposalId" value={id} />
+              <input type="hidden" name="sectionId" value="" />
+              <div className="crm-field">
+                <Label htmlFor="newSectionType">Tipo</Label>
+                <select
+                  id="newSectionType"
+                  name="sectionType"
+                  defaultValue="custom"
+                >
+                  {PROPOSAL_SECTION_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {sectionTypeLabels[type]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="crm-field">
+                <Label htmlFor="newSectionTitle">Título</Label>
+                <Input
+                  id="newSectionTitle"
+                  name="title"
+                  maxLength={120}
+                  required
+                />
+              </div>
+              <div className="crm-field">
+                <Label htmlFor="newSectionContent">Conteúdo</Label>
+                <Textarea
+                  id="newSectionContent"
+                  name="content"
+                  maxLength={12000}
+                />
+              </div>
+              <label className="crm-check">
+                <input type="checkbox" name="visible" defaultChecked /> Exibir
+                no preview
+              </label>
+              <Button type="submit">Criar seção</Button>
+            </form>
+          </details>
+        ) : null}
+      </Card>
+      {editable ? (
+        <Card>
+          <h2>Dados institucionais do documento</h2>
+          <form action={updateDocumentSettings} className="crm-form">
+            <input type="hidden" name="proposalId" value={id} />
+            <div className="crm-field">
+              <Label htmlFor="displayName">Nome comercial</Label>
+              <Input
+                id="displayName"
+                name="displayName"
+                defaultValue={
+                  settings?.display_name ?? access.organization.name
+                }
+                required
+              />
+            </div>
+            <div className="crm-field">
+              <Label htmlFor="documentEmail">E-mail</Label>
+              <Input
+                id="documentEmail"
+                name="email"
+                type="email"
+                defaultValue={settings?.email ?? ""}
+              />
+            </div>
+            <div className="crm-field">
+              <Label htmlFor="documentPhone">Telefone</Label>
+              <Input
+                id="documentPhone"
+                name="phone"
+                defaultValue={settings?.phone ?? ""}
+              />
+            </div>
+            <div className="crm-field">
+              <Label htmlFor="documentWebsite">Site</Label>
+              <Input
+                id="documentWebsite"
+                name="website"
+                type="url"
+                defaultValue={settings?.website ?? ""}
+              />
+            </div>
+            <div className="crm-field">
+              <Label htmlFor="documentCity">Cidade</Label>
+              <Input
+                id="documentCity"
+                name="city"
+                defaultValue={settings?.city ?? ""}
+              />
+            </div>
+            <Button type="submit">Salvar dados institucionais</Button>
+          </form>
+        </Card>
+      ) : null}
       {editable ? (
         <div className="crm-detail-grid">
           <Card>
