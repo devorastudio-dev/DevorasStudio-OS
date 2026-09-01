@@ -152,6 +152,7 @@ export default async function OpportunityDetail({
                 Abrir cliente
               </Link>
               {canWriteProposals ? (
+<<<<<<< HEAD
                 <>
                   {" · "}
                   <Link
@@ -160,6 +161,13 @@ export default async function OpportunityDetail({
                     Criar proposta
                   </Link>
                 </>
+=======
+                <Link
+                  href={`/proposals/new?clientId=${clientRelation.client_id}&opportunityId=${id}`}
+                >
+                  Criar proposta
+                </Link>
+>>>>>>> 5e27d76 (ajustes para correção de versões descincronizadas)
               ) : null}
             </>
           ) : currentStage?.category === "won" ? (
