@@ -73,6 +73,15 @@ describe("submitLead", () => {
     );
   });
 
+  it("rejeita email inválido antes de chamar a RPC", async () => {
+    const data = validForm();
+    data.set("email", "email-invalido");
+    const state = await submitLead(initialLeadState, data);
+    expect(state.status).toBe("error");
+    expect(state.message).toBe("Revise os campos indicados e tente novamente.");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it("descarta somente o honeypot deliberado com resposta neutra", async () => {
     const data = validForm();
     data.set("fax_extension_7f3a", "spam");
