@@ -119,6 +119,8 @@ export async function updateDocumentSettings(d: FormData) {
   redirect(`/proposals/${proposalId}?saved=1`);
 }
 export async function createProposal(d: FormData) {
+  const startedAt = performance.now();
+  const requestId = crypto.randomUUID();
   await requireProposalsAccess("proposals.write");
   const p = proposalSchema.safeParse({
     clientId: f(d, "clientId"),
@@ -138,11 +140,25 @@ export async function createProposal(d: FormData) {
     ? await (
         await createProposalsDb()
       ).rpc("create_proposal_from_template", {
-        ...args,
+        target_client_id: p.data.clientId,
+        // Esta RPC não possui defaults SQL. `undefined` desaparece do JSON e
+        // muda a assinatura procurada pelo PostgREST; null preserva os argumentos.
+        target_opportunity_id: p.data.opportunityId,
+        proposal_title: p.data.title,
+        proposal_valid_until: p.data.validUntil,
         target_template_id: templateId,
       })
     : await (await createClient()).rpc("create_proposal", args);
-  if (error || !data) redirect("/proposals/new?error=save");
+  if (error || !data) {
+    console.error("[proposal-operation]", {
+      request_id: requestId,
+      operation: templateId ? "create_from_template" : "create_blank",
+      technical_code: error && "code" in error ? String(error.code) : "empty_result",
+      result: "failure",
+      duration_ms: Math.round(performance.now() - startedAt),
+    });
+    redirect("/proposals/new?error=save");
+  }
   redirect(`/proposals/${data}?created=1`);
 }
 export async function saveProposalTemplate(d: FormData) {
