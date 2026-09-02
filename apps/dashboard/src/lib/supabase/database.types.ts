@@ -1164,6 +1164,67 @@ export type Database = {
         };
         Relationships: [];
       };
+      proposal_attachments: {
+        Row: {
+          checksum_sha256: string;
+          created_at: string;
+          created_by: string;
+          file_name: string;
+          id: string;
+          mime_type: string;
+          organization_id: string;
+          proposal_id: string;
+          size_bytes: number;
+          storage_path: string;
+        };
+        Insert: {
+          checksum_sha256: string;
+          created_at?: string;
+          created_by: string;
+          file_name: string;
+          id?: string;
+          mime_type: string;
+          organization_id: string;
+          proposal_id: string;
+          size_bytes: number;
+          storage_path: string;
+        };
+        Update: {
+          checksum_sha256?: string;
+          created_at?: string;
+          created_by?: string;
+          file_name?: string;
+          id?: string;
+          mime_type?: string;
+          organization_id?: string;
+          proposal_id?: string;
+          size_bytes?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_attachments_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_attachments_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_attachments_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       proposal_items: {
         Row: {
           created_at: string;
@@ -1492,6 +1553,64 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
+          },
+        ];
+      };
+      proposal_version_attachments: {
+        Row: {
+          attachment_id: string;
+          checksum_sha256: string;
+          created_at: string;
+          file_name: string;
+          mime_type: string;
+          organization_id: string;
+          proposal_version_id: string;
+          size_bytes: number;
+          storage_path: string;
+        };
+        Insert: {
+          attachment_id: string;
+          checksum_sha256: string;
+          created_at?: string;
+          file_name: string;
+          mime_type: string;
+          organization_id: string;
+          proposal_version_id: string;
+          size_bytes: number;
+          storage_path: string;
+        };
+        Update: {
+          attachment_id?: string;
+          checksum_sha256?: string;
+          created_at?: string;
+          file_name?: string;
+          mime_type?: string;
+          organization_id?: string;
+          proposal_version_id?: string;
+          size_bytes?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_version_attachments_attachment_fk";
+            columns: ["attachment_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_attachments";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_version_attachments_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_version_attachments_version_fk";
+            columns: ["proposal_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
           },
         ];
       };
@@ -1921,6 +2040,16 @@ export type Database = {
         Args: { direction: number; target_section_id: string };
         Returns: undefined;
       };
+      prepare_proposal_attachment: {
+        Args: {
+          attachment_checksum_sha256: string;
+          attachment_file_name: string;
+          attachment_mime_type: string;
+          attachment_size_bytes: number;
+          target_proposal_id: string;
+        };
+        Returns: Json;
+      };
       record_administrative_audit: {
         Args: {
           event_action: string;
@@ -1945,6 +2074,10 @@ export type Database = {
       remove_member_role: {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
+      };
+      remove_proposal_attachment: {
+        Args: { target_attachment_id: string };
+        Returns: string;
       };
       remove_proposal_item: {
         Args: { target_item_id: string };

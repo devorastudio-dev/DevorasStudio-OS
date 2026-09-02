@@ -22,6 +22,10 @@ import {
 import { createClient } from "../../../lib/supabase/server";
 import { ProposalItemEditor } from "../_components/proposal-item-editor";
 import {
+  removeProposalAttachment,
+  uploadProposalAttachment,
+} from "../../../lib/proposals/attachment-actions";
+import {
   PROPOSAL_SECTION_TYPES,
   sectionTypeLabels,
 } from "../../../lib/proposals/document";
@@ -30,7 +34,14 @@ export default async function ProposalDetail({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ created?: string; saved?: string; error?: string }>;
+  searchParams: Promise<{
+    attachmentError?: string;
+    attachmentRemoved?: string;
+    attachmentUploaded?: string;
+    created?: string;
+    error?: string;
+    saved?: string;
+  }>;
 }) {
   const access = await requireProposalsAccess();
   const canWrite = await hasPermission(
@@ -46,6 +57,7 @@ export default async function ProposalDetail({
     { data: services },
     { data: sections },
     { data: settings },
+    { data: attachments },
   ] = await Promise.all([
     s
       .from("proposals")
@@ -77,6 +89,12 @@ export default async function ProposalDetail({
       .select("*")
       .eq("organization_id", access.organization.id)
       .maybeSingle(),
+    s
+      .from("proposal_attachments")
+      .select("id,file_name,mime_type,size_bytes,created_at")
+      .eq("organization_id", access.organization.id)
+      .eq("proposal_id", id)
+      .order("created_at", { ascending: false }),
   ]);
   if (!proposal) notFound();
   const editable = canWrite && proposal.status === "draft";
@@ -111,6 +129,68 @@ export default async function ProposalDetail({
           totais no momento da criação.
         </p>
         <Link href={`/proposals/${id}/versions`}>Ver versões</Link>
+      </Card>
+      <Card>
+        <h2>Anexos privados</h2>
+        <p>
+          PDF, PNG ou JPEG, com até 10 MB. Anexos incluídos em uma versão
+          tornam-se imutáveis.
+        </p>
+        {q.attachmentUploaded ? (
+          <Alert variant="success">Anexo enviado.</Alert>
+        ) : null}
+        {q.attachmentRemoved ? (
+          <Alert variant="success">Anexo removido.</Alert>
+        ) : null}
+        {q.attachmentError ? (
+          <Alert variant="error">
+            Não foi possível concluir a operação com o anexo.
+          </Alert>
+        ) : null}
+        {editable ? (
+          <form action={uploadProposalAttachment} className="crm-form">
+            <input type="hidden" name="proposalId" value={id} />
+            <Label htmlFor="proposalAttachment">Adicionar anexo</Label>
+            <Input
+              id="proposalAttachment"
+              name="file"
+              type="file"
+              accept="application/pdf,image/png,image/jpeg"
+              required
+            />
+            <Button type="submit">Enviar anexo</Button>
+          </form>
+        ) : null}
+        {attachments?.length ? (
+          <ul>
+            {attachments.map((attachment) => (
+              <li key={attachment.id}>
+                <a href={`/api/proposals/${id}/attachments/${attachment.id}`}>
+                  {attachment.file_name}
+                </a>{" "}
+                <small>{Math.ceil(attachment.size_bytes / 1024)} KB</small>{" "}
+                {editable ? (
+                  <form
+                    action={removeProposalAttachment}
+                    className="crm-inline-form"
+                  >
+                    <input type="hidden" name="proposalId" value={id} />
+                    <input
+                      type="hidden"
+                      name="attachmentId"
+                      value={attachment.id}
+                    />
+                    <Button type="submit" variant="secondary">
+                      Remover
+                    </Button>
+                  </form>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Nenhum anexo.</p>
+        )}
       </Card>
       {q.created || q.saved ? (
         <Alert variant="success">Proposta salva.</Alert>
