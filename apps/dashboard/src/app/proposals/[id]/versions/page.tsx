@@ -37,6 +37,10 @@ export default async function Versions({
                 Versão {v.version_number}
               </Link>{" "}
               · {new Date(v.created_at).toLocaleString("pt-BR")}
+              {" · "}
+              <a href={`/api/proposals/${id}/versions/${v.version_number}/pdf`}>
+                Baixar PDF
+              </a>
             </p>
           ))
         ) : (
