@@ -165,9 +165,9 @@ export async function createProposal(d: FormData) {
 export async function saveProposalTemplate(d: FormData) {
   await requireProposalsAccess("proposals.write");
   const p = proposalTemplateSchema.safeParse({
-    id: f(d, "id") || undefined,
+    id: f(d, "id"),
     name: f(d, "name"),
-    description: f(d, "description") || undefined,
+    description: f(d, "description"),
     active: d.get("active") === "on",
   });
   if (!p.success) redirect("/proposals/templates?error=validation");
