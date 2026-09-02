@@ -201,7 +201,7 @@ O detalhe de uma oportunidade ganha permite conversão explícita e idempotente 
 
 ## Propostas
 
-O módulo `/proposals` mantém catálogo, rascunhos, snapshots comerciais e totais calculados no PostgreSQL. A D2 adiciona conteúdo editorial estruturado, tokens controlados e preview HTML autenticado, sem PDF, envio ou aceite. Consulte [Fundação de propostas](docs/proposals-foundation.md) e [Editor estruturado de propostas](docs/proposal-editor.md).
+O módulo `/proposals` mantém catálogo, rascunhos, snapshots comerciais e totais calculados no PostgreSQL. O preview HTML representa o draft; PDFs oficiais são gerados server-side somente de versões imutáveis. Anexos usam Storage privado, checksum SHA-256 e referências congeladas por versão. Consulte [Fundação de propostas](docs/proposals-foundation.md), [Editor estruturado de propostas](docs/proposal-editor.md) e [PDF oficial e anexos](docs/proposal-pdf-and-attachments.md).
 
 ## CI
 
