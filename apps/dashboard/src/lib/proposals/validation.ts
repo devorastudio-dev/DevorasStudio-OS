@@ -97,7 +97,9 @@ export const itemSchema = z
 export const proposalFiltersSchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).catch(1),
   q: z.string().trim().max(120).optional(),
-  status: z.literal("draft").optional(),
+  status: z
+    .enum(["draft", "sent", "accepted", "rejected", "expired"])
+    .optional(),
 });
 export const proposalSectionSchema = z.object({
   proposalId: z.string().uuid(),

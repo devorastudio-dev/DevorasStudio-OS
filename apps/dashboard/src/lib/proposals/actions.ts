@@ -153,7 +153,8 @@ export async function createProposal(d: FormData) {
     console.error("[proposal-operation]", {
       request_id: requestId,
       operation: templateId ? "create_from_template" : "create_blank",
-      technical_code: error && "code" in error ? String(error.code) : "empty_result",
+      technical_code:
+        error && "code" in error ? String(error.code) : "empty_result",
       result: "failure",
       duration_ms: Math.round(performance.now() - startedAt),
     });
@@ -164,9 +165,9 @@ export async function createProposal(d: FormData) {
 export async function saveProposalTemplate(d: FormData) {
   await requireProposalsAccess("proposals.write");
   const p = proposalTemplateSchema.safeParse({
-    id: f(d, "id"),
+    id: f(d, "id") || undefined,
     name: f(d, "name"),
-    description: f(d, "description"),
+    description: f(d, "description") || undefined,
     active: d.get("active") === "on",
   });
   if (!p.success) redirect("/proposals/templates?error=validation");

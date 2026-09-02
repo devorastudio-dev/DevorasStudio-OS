@@ -1225,6 +1225,226 @@ export type Database = {
           },
         ];
       };
+      proposal_decisions: {
+        Row: {
+          created_at: string;
+          decision: string;
+          delivery_link_id: string;
+          id: string;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id: string;
+          reason: string | null;
+          responsible_email: string | null;
+          responsible_name: string;
+        };
+        Insert: {
+          created_at?: string;
+          decision: string;
+          delivery_link_id: string;
+          id?: string;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id: string;
+          reason?: string | null;
+          responsible_email?: string | null;
+          responsible_name: string;
+        };
+        Update: {
+          created_at?: string;
+          decision?: string;
+          delivery_link_id?: string;
+          id?: string;
+          organization_id?: string;
+          proposal_id?: string;
+          proposal_version_id?: string;
+          reason?: string | null;
+          responsible_email?: string | null;
+          responsible_name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_decisions_delivery_link_id_fkey";
+            columns: ["delivery_link_id"];
+            isOneToOne: true;
+            referencedRelation: "proposal_delivery_links";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_decisions_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_decisions_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_decisions_version_fk";
+            columns: ["proposal_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_delivery_links: {
+        Row: {
+          activated_at: string | null;
+          created_at: string;
+          created_by: string;
+          expires_at: string;
+          id: string;
+          message: string | null;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id: string;
+          recipient_email: string | null;
+          revoked_at: string | null;
+          state: string;
+          token_hash: string;
+        };
+        Insert: {
+          activated_at?: string | null;
+          created_at?: string;
+          created_by: string;
+          expires_at: string;
+          id?: string;
+          message?: string | null;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id: string;
+          recipient_email?: string | null;
+          revoked_at?: string | null;
+          state?: string;
+          token_hash: string;
+        };
+        Update: {
+          activated_at?: string | null;
+          created_at?: string;
+          created_by?: string;
+          expires_at?: string;
+          id?: string;
+          message?: string | null;
+          organization_id?: string;
+          proposal_id?: string;
+          proposal_version_id?: string;
+          recipient_email?: string | null;
+          revoked_at?: string | null;
+          state?: string;
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_delivery_links_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_delivery_links_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_delivery_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_delivery_version_fk";
+            columns: ["proposal_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
+      proposal_events: {
+        Row: {
+          actor_type: string;
+          actor_user_id: string | null;
+          created_at: string;
+          delivery_link_id: string | null;
+          event_type: string;
+          id: string;
+          metadata: Json;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id: string | null;
+        };
+        Insert: {
+          actor_type: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          delivery_link_id?: string | null;
+          event_type: string;
+          id?: string;
+          metadata?: Json;
+          organization_id: string;
+          proposal_id: string;
+          proposal_version_id?: string | null;
+        };
+        Update: {
+          actor_type?: string;
+          actor_user_id?: string | null;
+          created_at?: string;
+          delivery_link_id?: string | null;
+          event_type?: string;
+          id?: string;
+          metadata?: Json;
+          organization_id?: string;
+          proposal_id?: string;
+          proposal_version_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "proposal_events_actor_user_id_fkey";
+            columns: ["actor_user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_events_link_fk";
+            columns: ["delivery_link_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_delivery_links";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposal_events_proposal_fk";
+            columns: ["proposal_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposals";
+            referencedColumns: ["id", "organization_id"];
+          },
+          {
+            foreignKeyName: "proposal_events_version_fk";
+            columns: ["proposal_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       proposal_items: {
         Row: {
           created_at: string;
@@ -1664,15 +1884,21 @@ export type Database = {
       };
       proposals: {
         Row: {
+          accepted_at: string | null;
+          accepted_version_id: string | null;
           client_id: string;
           created_at: string;
           created_by: string;
           currency: string;
           discount_amount: number;
+          first_viewed_at: string | null;
           id: string;
           opportunity_id: string | null;
           organization_id: string;
           proposal_number: string;
+          rejected_at: string | null;
+          sent_at: string | null;
+          sent_version_id: string | null;
           source_template_id: string | null;
           source_template_version: number | null;
           status: Database["public"]["Enums"]["proposal_status"];
@@ -1685,15 +1911,21 @@ export type Database = {
           version: number;
         };
         Insert: {
+          accepted_at?: string | null;
+          accepted_version_id?: string | null;
           client_id: string;
           created_at?: string;
           created_by: string;
           currency?: string;
           discount_amount?: number;
+          first_viewed_at?: string | null;
           id?: string;
           opportunity_id?: string | null;
           organization_id: string;
           proposal_number: string;
+          rejected_at?: string | null;
+          sent_at?: string | null;
+          sent_version_id?: string | null;
           source_template_id?: string | null;
           source_template_version?: number | null;
           status?: Database["public"]["Enums"]["proposal_status"];
@@ -1706,15 +1938,21 @@ export type Database = {
           version?: number;
         };
         Update: {
+          accepted_at?: string | null;
+          accepted_version_id?: string | null;
           client_id?: string;
           created_at?: string;
           created_by?: string;
           currency?: string;
           discount_amount?: number;
+          first_viewed_at?: string | null;
           id?: string;
           opportunity_id?: string | null;
           organization_id?: string;
           proposal_number?: string;
+          rejected_at?: string | null;
+          sent_at?: string | null;
+          sent_version_id?: string | null;
           source_template_id?: string | null;
           source_template_version?: number | null;
           status?: Database["public"]["Enums"]["proposal_status"];
@@ -1727,6 +1965,13 @@ export type Database = {
           version?: number;
         };
         Relationships: [
+          {
+            foreignKeyName: "proposals_accepted_version_fk";
+            columns: ["accepted_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
+          },
           {
             foreignKeyName: "proposals_client_fk";
             columns: ["client_id", "organization_id"];
@@ -1754,6 +1999,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "organizations";
             referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "proposals_sent_version_fk";
+            columns: ["sent_version_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "proposal_versions";
+            referencedColumns: ["id", "organization_id"];
           },
           {
             foreignKeyName: "proposals_source_template_fk";
@@ -1915,6 +2167,10 @@ export type Database = {
     };
     Functions: {
       accept_my_organization_invitation: { Args: never; Returns: string };
+      activate_proposal_delivery: {
+        Args: { target_delivery_id: string; target_resent?: boolean };
+        Returns: undefined;
+      };
       assign_member_role: {
         Args: { target_membership_id: string; target_role_slug: string };
         Returns: undefined;
@@ -1998,10 +2254,28 @@ export type Database = {
         };
         Returns: string;
       };
+      decide_public_proposal: {
+        Args: {
+          target_decision: string;
+          target_email?: string;
+          target_name: string;
+          target_reason?: string;
+          target_token_hash: string;
+        };
+        Returns: string;
+      };
+      fail_proposal_delivery: {
+        Args: { target_delivery_id: string };
+        Returns: undefined;
+      };
       get_crm_dashboard: { Args: { period_days?: number }; Returns: Json };
       get_my_membership_statuses: {
         Args: never;
         Returns: Database["public"]["Enums"]["organization_member_status"][];
+      };
+      get_public_proposal: {
+        Args: { target_record_view?: boolean; target_token_hash: string };
+        Returns: Json;
       };
       has_permission: {
         Args: { organization_id?: string; permission_key: string };
@@ -2050,6 +2324,16 @@ export type Database = {
         };
         Returns: Json;
       };
+      prepare_proposal_delivery: {
+        Args: {
+          target_expires_at: string;
+          target_message?: string;
+          target_recipient_email?: string;
+          target_token_hash: string;
+          target_version_id: string;
+        };
+        Returns: string;
+      };
       record_administrative_audit: {
         Args: {
           event_action: string;
@@ -2085,6 +2369,10 @@ export type Database = {
       };
       remove_proposal_section: {
         Args: { target_section_id: string };
+        Returns: undefined;
+      };
+      revoke_proposal_delivery: {
+        Args: { target_delivery_id: string };
         Returns: undefined;
       };
       save_proposal_item: {
@@ -2278,7 +2566,7 @@ export type Database = {
         | "notes"
         | "closing"
         | "custom";
-      proposal_status: "draft";
+      proposal_status: "draft" | "sent" | "accepted" | "rejected" | "expired";
       service_unit: "project" | "hour" | "month" | "unit" | "custom";
     };
     CompositeTypes: {
@@ -2460,7 +2748,7 @@ export const Constants = {
         "closing",
         "custom",
       ],
-      proposal_status: ["draft"],
+      proposal_status: ["draft", "sent", "accepted", "rejected", "expired"],
       service_unit: ["project", "hour", "month", "unit", "custom"],
     },
   },

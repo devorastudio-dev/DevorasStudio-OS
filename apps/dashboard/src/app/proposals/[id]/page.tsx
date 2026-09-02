@@ -29,6 +29,10 @@ import {
   PROPOSAL_SECTION_TYPES,
   sectionTypeLabels,
 } from "../../../lib/proposals/document";
+import {
+  deliverProposal,
+  revokeProposalLink,
+} from "../../../lib/proposals/delivery-actions";
 export default async function ProposalDetail({
   params,
   searchParams,
@@ -41,6 +45,10 @@ export default async function ProposalDetail({
     created?: string;
     error?: string;
     saved?: string;
+    delivered?: string;
+    deliveryError?: string;
+    publicLink?: string;
+    revoked?: string;
   }>;
 }) {
   const access = await requireProposalsAccess();
@@ -97,6 +105,30 @@ export default async function ProposalDetail({
       .order("created_at", { ascending: false }),
   ]);
   if (!proposal) notFound();
+  const [{ data: versions }, { data: deliveries }, { data: events }] =
+    await Promise.all([
+      s
+        .from("proposal_versions")
+        .select("id,version_number,created_at")
+        .eq("organization_id", access.organization.id)
+        .eq("proposal_id", id)
+        .order("version_number", { ascending: false }),
+      s
+        .from("proposal_delivery_links")
+        .select(
+          "id,proposal_version_id,state,expires_at,activated_at,recipient_email",
+        )
+        .eq("organization_id", access.organization.id)
+        .eq("proposal_id", id)
+        .order("created_at", { ascending: false }),
+      s
+        .from("proposal_events")
+        .select("id,event_type,created_at,proposal_version_id")
+        .eq("organization_id", access.organization.id)
+        .eq("proposal_id", id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
   const editable = canWrite && proposal.status === "draft";
   return (
     <>
@@ -129,6 +161,82 @@ export default async function ProposalDetail({
           totais no momento da criação.
         </p>
         <Link href={`/proposals/${id}/versions`}>Ver versões</Link>
+      </Card>
+      <Card>
+        <h2>Envio e acesso do cliente</h2>
+        {q.delivered ? (
+          <Alert variant="success">Link ativado com sucesso.</Alert>
+        ) : null}
+        {q.deliveryError ? (
+          <Alert variant="error">
+            Não foi possível concluir o envio. Nenhum sucesso foi presumido.
+          </Alert>
+        ) : null}
+        {q.revoked ? <Alert variant="success">Link revogado.</Alert> : null}
+        {q.publicLink ? (
+          <p>
+            <Label htmlFor="publicProposalLink">Link público</Label>
+            <Input id="publicProposalLink" readOnly value={q.publicLink} />
+          </p>
+        ) : null}
+        {canWrite && versions?.length ? (
+          <form action={deliverProposal} className="crm-form">
+            <input type="hidden" name="proposalId" value={id} />
+            <Label htmlFor="versionId">Versão congelada</Label>
+            <select id="versionId" name="versionId" required>
+              {versions.map((v) => (
+                <option key={v.id} value={v.id}>
+                  Versão {v.version_number}
+                </option>
+              ))}
+            </select>
+            <Label htmlFor="recipientEmail">
+              Destinatário (opcional para copiar link)
+            </Label>
+            <Input id="recipientEmail" name="recipientEmail" type="email" />
+            <Label htmlFor="deliveryMessage">Mensagem opcional</Label>
+            <Textarea id="deliveryMessage" name="message" maxLength={1000} />
+            <label>
+              <input type="checkbox" name="sendEmail" /> Enviar também por
+              e-mail
+            </label>
+            <Button>Gerar link e enviar</Button>
+          </form>
+        ) : (
+          <p>Crie uma versão antes de disponibilizar a proposta.</p>
+        )}
+        {deliveries?.length ? (
+          <ul>
+            {deliveries.map((d) => (
+              <li key={d.id}>
+                Link {d.state} · expira em{" "}
+                {new Date(d.expires_at).toLocaleDateString("pt-BR")}
+                {d.state === "active" && canWrite ? (
+                  <form action={revokeProposalLink} className="crm-inline-form">
+                    <input type="hidden" name="proposalId" value={id} />
+                    <input type="hidden" name="deliveryId" value={d.id} />
+                    <Button variant="secondary">Revogar</Button>
+                  </form>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
+      <Card>
+        <h2>Timeline comercial</h2>
+        {events?.length ? (
+          <ol>
+            {events.map((e) => (
+              <li key={e.id}>
+                {new Date(e.created_at).toLocaleString("pt-BR")} ·{" "}
+                {e.event_type.replaceAll("_", " ")}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>Nenhum evento comercial.</p>
+        )}
       </Card>
       <Card>
         <h2>Anexos privados</h2>

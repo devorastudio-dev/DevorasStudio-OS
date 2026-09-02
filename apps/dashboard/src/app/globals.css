@@ -10,6 +10,40 @@
   --app-sidebar-active: #312e81;
 }
 
+.public-proposal-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 3rem);
+  display: grid;
+  gap: 1.5rem;
+  background: var(--surface-primary, #fff);
+  color: var(--text-primary, #171717);
+}
+.public-proposal-shell > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1rem;
+}
+@media (max-width: 480px) {
+  .public-proposal-shell > header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .public-proposal-shell .proposal-document {
+    padding: 1rem;
+  }
+  .public-proposal-shell table {
+    min-width: 0;
+    font-size: 0.75rem;
+  }
+  .public-proposal-shell th,
+  .public-proposal-shell td {
+    padding: 0.35rem;
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

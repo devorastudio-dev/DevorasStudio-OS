@@ -9,6 +9,13 @@ import { createClient } from "../../lib/supabase/server";
 import { Pagination } from "../crm/_components/pagination";
 export const dynamic = "force-dynamic";
 const pageSize = 20;
+const statusLabels = {
+  draft: "Rascunho",
+  sent: "Enviada",
+  accepted: "Aceita",
+  rejected: "Recusada",
+  expired: "Expirada",
+} as const;
 export default async function Proposals({
   searchParams,
 }: {
@@ -69,6 +76,10 @@ export default async function Proposals({
           <select id="status" name="status">
             <option value="">Todos</option>
             <option value="draft">Rascunho</option>
+            <option value="sent">Enviadas</option>
+            <option value="accepted">Aceitas</option>
+            <option value="rejected">Recusadas</option>
+            <option value="expired">Expiradas</option>
           </select>
         </div>
         <Button>Filtrar</Button>
@@ -92,7 +103,7 @@ export default async function Proposals({
                   {new Date(v.updated_at).toLocaleDateString("pt-BR")}
                 </span>
               </div>
-              <Badge variant="neutral">Rascunho</Badge>
+              <Badge variant="neutral">{statusLabels[v.status]}</Badge>
             </Link>
           ))}
         </div>
